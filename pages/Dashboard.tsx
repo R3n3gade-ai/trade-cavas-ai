@@ -1,84 +1,22 @@
 "use client";
 
-import React, { Suspense, useState, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { BarChart2, Activity, LineChart, PieChart, TrendingUp, Settings, Calendar, Search, Brain } from "lucide-react";
 import { useDashboardStore } from "../utils/store";
-import { DashboardLayout } from "../components/DashboardLayout";
-import { MiniChart } from "../components/MiniChart";
-import { PercentageChange } from "../components/PercentageChange";
-import { WatchlistCard } from "../components/WatchlistCard";
-import { MarketNewsCard } from "../components/MarketNewsCard";
-import { MarketCapTable } from "../components/MarketCapTable";
-import { StockDetailModal } from "../components/StockDetailModal";
-import { TedsBrainContainer2 } from "../components/TedsBrainContainer2";
-import { TedsBrainDashboardTool } from "../components/TedsBrainDashboardTool";
+import { DashboardLayout } from "../src/components/DashboardLayout";
+import { MiniChart } from "../src/components/MiniChart";
+import { PercentageChange } from "../src/components/PercentageChange";
+import { WatchlistCard } from "../src/components/WatchlistCard";
+import { MarketNewsCard } from "../src/components/MarketNewsCard";
+import { MarketCapTable } from "../src/components/MarketCapTable";
+import { StockDetailModal } from "../src/components/StockDetailModal";
+import { TedsBrainContainer2 } from "../src/components/TedsBrainContainer2";
+import { TedsBrainDashboardTool } from "../src/components/TedsBrainDashboardTool";
 import { formatCurrency, formatMarketCap } from "../utils/formatters";
-
-// Loading fallback component
-const LoadingFallback = () => (
-  <div className="flex items-center justify-center h-40 w-full bg-card/50 rounded-lg border border-white/10 animate-pulse">
-    <div className="text-muted-foreground">Loading...</div>
-  </div>
-);
-
-// Error boundary component
-class ErrorBoundary extends React.Component<{children: React.ReactNode, fallback: React.ReactNode}> {
-  state = { hasError: false, error: null };
-
-  static getDerivedStateFromError(error: any) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: any, errorInfo: any) {
-    console.error("Dashboard error:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback;
-    }
-
-    return this.props.children;
-  }
-}
-
-// Error fallback component
-const ErrorFallback = () => (
-  <div className="flex flex-col items-center justify-center h-40 w-full bg-card/50 rounded-lg border border-red-500/30 p-4">
-    <div className="text-red-500 mb-2">Something went wrong</div>
-    <button
-      onClick={() => window.location.reload()}
-      className="px-4 py-2 bg-primary text-white rounded-md text-sm"
-    >
-      Reload page
-    </button>
-  </div>
-);
-
-// Wrap TedsBrainContainer2 with error boundary and suspense
-const SafeTedsBrainContainer = () => (
-  <ErrorBoundary fallback={<ErrorFallback />}>
-    <Suspense fallback={<LoadingFallback />}>
-      <TedsBrainContainer2 />
-    </Suspense>
-  </ErrorBoundary>
-);
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  // Use effect to simulate data loading
-  useEffect(() => {
-    // Mark as loaded after a short delay
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
-
   const {
     divergenceScans,
     topByMarketCap,
@@ -144,11 +82,7 @@ export default function Dashboard() {
           {/* Ted's Brain Container - Moved up right after user profile */}
           <div className="grid grid-cols-12 gap-6 mb-8">
             <div className="col-span-12">
-              {isLoaded ? (
-                <SafeTedsBrainContainer />
-              ) : (
-                <LoadingFallback />
-              )}
+              <TedsBrainContainer2 />
             </div>
           </div>
 

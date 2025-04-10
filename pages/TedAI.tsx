@@ -4,8 +4,8 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
-import {
-  Zap, ChevronLeft, Send, Mic, ChevronDown, Clock, Star,
+import { 
+  Zap, ChevronLeft, Send, Mic, ChevronDown, Clock, Star, 
   Link, BarChart2, LineChart, Settings, Trash2, X, BookOpen,
   Maximize2, PanelLeft, Download, History, HelpCircle, User,
   Brain, Image as ImageIcon, UploadCloud, Bot, Plus
@@ -17,7 +17,6 @@ import { toast, Toaster } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { TedAISampleQueries } from "components/TedAISampleQueries";
-import { TedAIFileUploader } from "../components/TedAIFileUploader";
 
 import { Message, Attachment, Conversation } from "utils/tedAITypes";
 import { useTedAIStore } from "utils/tedAIStore";
@@ -80,14 +79,13 @@ export default function TedAI() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [inputValue, setInputValue] = useState("");
   const [showChartUploader, setShowChartUploader] = useState(false);
-  const [showFileUploader, setShowFileUploader] = useState(false);
-
+  
   // Get TED AI store state
-  const {
-    currentConversationId,
-    conversations,
+  const { 
+    currentConversationId, 
+    conversations, 
     conversationList,
-    isLoading,
+    isLoading, 
     isStreaming,
     streamingMessage,
     error,
@@ -101,17 +99,17 @@ export default function TedAI() {
     toggleSidebar,
     setUserSettings
   } = useTedAIStore();
-
+  
   // Get brain store for checking status
   const { recentItems: recentBrainItems } = useBrainStore();
 
   // Get current conversation messages
-  const currentConversation = currentConversationId
-    ? conversations[currentConversationId]
+  const currentConversation = currentConversationId 
+    ? conversations[currentConversationId] 
     : null;
-
+  
   const messages = currentConversation?.messages || [];
-
+  
   // Init: Fetch conversations and start new one if needed
   useEffect(() => {
     fetchConversations().then(() => {
@@ -121,7 +119,7 @@ export default function TedAI() {
       }
     });
   }, []);
-
+  
   // Auto-scroll to bottom of messages
   useEffect(() => {
     scrollToBottom();
@@ -134,24 +132,24 @@ export default function TedAI() {
       toast.error("Conversation not found");
       return;
     }
-
+    
     // Get all the messages from the conversation
     const messages = conversation.messages;
-
+    
     // Extract the text from all messages
     let messageTexts = messages.map(message => {
       return `${message.type === 'user' ? 'User' : 'TED AI'}: ${message.content}`;
     }).join('\n\n');
-
+    
     const title = conversation.title || 'Conversation';
     const content = `# ${title}\n\n${messageTexts}`;
-
+    
     // Add to brain using the brain store
     try {
       useBrainStore.getState().addToTedBrain(
-        content,
+        content, 
         'ted-ai-conversation',
-        {
+        { 
           conversationId,
           title,
           timestamp: new Date().toISOString(),
@@ -165,50 +163,50 @@ export default function TedAI() {
       toast.error("Failed to add conversation to brain");
     }
   };
-
+  
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
   const handleSendMessage = async () => {
     if (inputValue.trim() === "") return;
-
+    
     // Check for chart analysis commands
     const chartAnalysisKeywords = [
-      "analyze chart", "chart analysis", "analyze image",
-      "analyze trading chart", "read this chart", "what do you see in this chart",
+      "analyze chart", "chart analysis", "analyze image", 
+      "analyze trading chart", "read this chart", "what do you see in this chart", 
       "interpret chart", "technical analysis"
     ];
-
-    const isChartAnalysisRequest = chartAnalysisKeywords.some(keyword =>
+    
+    const isChartAnalysisRequest = chartAnalysisKeywords.some(keyword => 
       inputValue.toLowerCase().includes(keyword)
     );
-
+    
     if (isChartAnalysisRequest) {
       // Store the query for when the chart is uploaded
       setShowChartUploader(true);
       // Don't clear input yet so user still sees their request
       return;
     }
-
+    
     try {
       // Check for specific stock keywords for direct symbol analysis
       const stockSymbolRegex = /\b[A-Z]{1,5}\b/g;
       const matches = inputValue.match(stockSymbolRegex);
-
-      if (matches && (inputValue.toLowerCase().includes("analyze") ||
-          inputValue.toLowerCase().includes("price") ||
-          inputValue.toLowerCase().includes("stock") ||
+      
+      if (matches && (inputValue.toLowerCase().includes("analyze") || 
+          inputValue.toLowerCase().includes("price") || 
+          inputValue.toLowerCase().includes("stock") || 
           inputValue.toLowerCase().includes("data"))) {
         // If requesting stock analysis, make sure market data is included
         if (!userSettings.includeMarketData) {
           setUserSettings({ includeMarketData: true });
         }
       }
-
+      
       // Clear input immediately for better UX
       const messageText = inputValue;
       setInputValue("");
-
+      
       // Use streaming for better UX
       await streamMessage(messageText);
     } catch (error) {
@@ -228,38 +226,38 @@ export default function TedAI() {
   // Simple, robust implementation that avoids any store manipulation issues
   const handleChartAnalysisComplete = (analysis) => {
     console.log('Chart analysis handler running with new implementation');
-
+    
     // Close the uploader
     setShowChartUploader(false);
-
+    
     try {
       // Create a user message based on input or default
-      const userMessage = inputValue.trim() !== "" ?
-        inputValue :
+      const userMessage = inputValue.trim() !== "" ? 
+        inputValue : 
         `Analyze this chart${analysis.chart_symbol ? ` of ${analysis.chart_symbol}` : ''}`;
-
+      
       // Clear the input field
       setInputValue("");
-
+      
       // Format the analysis content with additional insights
       let enhancedAnalysisContent = analysis.analysis || "Analysis not available";
-
+      
       // Add structured insights if available
       if (analysis.identified_patterns?.length || analysis.support_levels?.length || analysis.resistance_levels?.length) {
         enhancedAnalysisContent += "\n\nKey Insights:";
-
+        
         if (analysis.identified_patterns?.length) {
           enhancedAnalysisContent += "\n• Patterns: " + analysis.identified_patterns.join(", ");
         }
-
+        
         if (analysis.support_levels?.length) {
           enhancedAnalysisContent += "\n• Support Levels: " + analysis.support_levels.map(l => typeof l === 'number' ? l.toFixed(2) : l).join(", ");
         }
-
+        
         if (analysis.resistance_levels?.length) {
           enhancedAnalysisContent += "\n• Resistance Levels: " + analysis.resistance_levels.map(l => typeof l === 'number' ? l.toFixed(2) : l).join(", ");
         }
-
+        
         if (analysis.possible_scenarios?.length) {
           enhancedAnalysisContent += "\n\nPossible Scenarios:";
           analysis.possible_scenarios.forEach(scenario => {
@@ -267,14 +265,14 @@ export default function TedAI() {
           });
         }
       }
-
+      
       // Get the current conversation ID or create one if needed
       let conversationId = currentConversationId;
       if (!conversationId) {
         // No active conversation, need to create one first
         const newId = `new-${Date.now()}`;
         conversationId = newId;
-
+        
         // Initialize the new conversation
         const newConversation = {
           id: newId,
@@ -290,7 +288,7 @@ export default function TedAI() {
           created_at: new Date().toISOString(),
           last_updated: new Date().toISOString(),
         };
-
+        
         // Create the new conversation
         useTedAIStore.setState(state => ({
           conversations: {
@@ -300,16 +298,16 @@ export default function TedAI() {
           currentConversationId: newId,
           // Also add to conversation list
           conversationList: [
-            {
-              id: newId,
-              title: 'Chart Analysis',
-              timestamp: new Date().toISOString()
+            { 
+              id: newId, 
+              title: 'Chart Analysis', 
+              timestamp: new Date().toISOString() 
             },
             ...state.conversationList
           ]
         }));
       }
-
+      
       // Create user message object
       const userMessageObj = {
         id: `user-${Date.now()}`,
@@ -317,7 +315,7 @@ export default function TedAI() {
         content: userMessage,
         timestamp: new Date().toISOString(),
       };
-
+      
       // Create AI response object with the analysis
       const aiMessageObj = {
         id: `ai-${Date.now() + 1}`,
@@ -332,13 +330,13 @@ export default function TedAI() {
           }
         ]
       };
-
+      
       // Add the messages to the conversation
       useTedAIStore.setState(state => {
         // Get the current conversation
         const conversation = state.conversations[conversationId];
         if (!conversation) return state; // Safety check
-
+        
         // Add the messages to the conversation
         return {
           conversations: {
@@ -351,10 +349,10 @@ export default function TedAI() {
           }
         };
       });
-
+      
       // Scroll to bottom to show new messages
       setTimeout(scrollToBottom, 100);
-
+      
       toast.success("Chart analysis complete!");
     } catch (error) {
       console.error("Error processing chart analysis:", error);
@@ -379,7 +377,7 @@ export default function TedAI() {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
-
+  
   return (
     <div className="flex h-screen bg-background text-foreground overflow-hidden">
       {/* Notifications */}
@@ -388,7 +386,7 @@ export default function TedAI() {
       {showSidebar && (
         <aside className="w-80 border-r border-white/10 flex flex-col h-full">
           <div className="p-4 border-b border-white/10">
-            <button
+            <button 
               onClick={handleNewChat}
               className="w-full py-2 px-4 bg-primary text-background rounded-md hover:bg-primary/90 flex items-center justify-center gap-2"
             >
@@ -396,7 +394,7 @@ export default function TedAI() {
               <span>New Chat</span>
             </button>
           </div>
-
+          
           <div className="flex-1 overflow-y-auto p-2">
             <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2 py-1 flex justify-between items-center">
               <span>Recent Conversations</span>
@@ -405,11 +403,11 @@ export default function TedAI() {
               </button>
             </div>
             {conversationList.map(chat => (
-              <div
+              <div 
                 key={chat.id}
                 className={`w-full text-left rounded-md hover:bg-card/60 mb-0.5 flex items-start ${currentConversationId === chat.id ? 'bg-card' : ''}`}
               >
-                <button
+                <button 
                   onClick={() => fetchConversation(chat.id)}
                   className="flex-1 p-2 flex items-start gap-2"
                 >
@@ -421,8 +419,8 @@ export default function TedAI() {
                     </div>
                   </div>
                 </button>
-                <button
-                  className="p-1.5 text-muted-foreground hover:text-primary"
+                <button 
+                  className="p-1.5 text-muted-foreground hover:text-primary" 
                   title="Add to brain"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -433,14 +431,14 @@ export default function TedAI() {
                 </button>
               </div>
             ))}
-
+            
             <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2 py-1 mt-3 flex justify-between items-center">
               <span>Saved Conversations</span>
               <button className="text-primary hover:text-primary/80" title="Add saved conversation">
                 <Star className="h-3.5 w-3.5" />
               </button>
             </div>
-            <div
+            <div 
               className="w-full text-left rounded-md hover:bg-card/60 mb-0.5 flex items-start"
             >
               <button className="flex-1 p-2 flex items-start gap-2">
@@ -457,13 +455,13 @@ export default function TedAI() {
               </button>
             </div>
           </div>
-
+          
           {recentBrainItems.length > 0 && (
             <div className="p-3 border-t border-white/10 flex flex-col space-y-2">
               <div className="text-xs text-muted-foreground">
                 <span className="font-medium">{recentBrainItems.length}</span> item{recentBrainItems.length !== 1 ? 's' : ''} in your knowledge brain
               </div>
-              <button
+              <button 
                 className="w-full flex gap-2 items-center justify-center text-xs bg-primary/10 hover:bg-primary/20 text-primary py-1.5 px-2 rounded"
                 onClick={() => toast.info("Brain management will be available in a future update!")}
               >
@@ -474,29 +472,29 @@ export default function TedAI() {
           )}
         </aside>
       )}
-
+      
       {/* Main chat area */}
       <div className="flex-1 flex flex-col h-full relative">
         {/* Chart Uploader */}
         {showChartUploader && (
           <div className="absolute inset-0 z-10 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <ChartUploader
-              onAnalysisComplete={handleChartAnalysisComplete}
-              onCancel={() => setShowChartUploader(false)}
+            <ChartUploader 
+              onAnalysisComplete={handleChartAnalysisComplete} 
+              onCancel={() => setShowChartUploader(false)} 
             />
           </div>
         )}
         {/* Header */}
         <header className="h-16 border-b border-white/10 flex items-center justify-between px-6">
           <div className="flex items-center space-x-4">
-            <button
+            <button 
               onClick={toggleSidebar}
               className="p-2 rounded-md hover:bg-card transition-colors text-muted-foreground hover:text-foreground"
               title={showSidebar ? "Hide sidebar" : "Show sidebar"}
             >
               <PanelLeft className="h-5 w-5" />
             </button>
-            <button
+            <button 
               onClick={() => navigate("/dashboard")}
               className="p-2 rounded-md hover:bg-card transition-colors text-muted-foreground hover:text-foreground"
               title="Back to dashboard"
@@ -509,19 +507,19 @@ export default function TedAI() {
             </h1>
           </div>
           <div className="flex items-center space-x-2">
-            <button
+            <button 
               className="p-2 rounded-md hover:bg-card transition-colors text-muted-foreground hover:text-foreground"
               title="Help"
             >
               <HelpCircle className="h-5 w-5" />
             </button>
-            <button
+            <button 
               className="p-2 rounded-md hover:bg-card transition-colors text-muted-foreground hover:text-foreground"
               title="History"
             >
               <History className="h-5 w-5" />
             </button>
-            <button
+            <button 
               className="p-2 rounded-md hover:bg-card transition-colors text-muted-foreground hover:text-foreground"
               title="Settings"
             >
@@ -529,7 +527,7 @@ export default function TedAI() {
             </button>
           </div>
         </header>
-
+        
         {/* Messages area */}
         <div className="flex-1 overflow-y-auto p-4">
           <div className="max-w-4xl mx-auto">
@@ -539,18 +537,18 @@ export default function TedAI() {
                 <Bot className="h-16 w-16 text-primary/50" />
                 <h2 className="text-2xl font-bold">How can I help you today?</h2>
                 <p className="text-muted-foreground max-w-md">
-                  Ask me about market analysis, technical patterns, options flow, dark pool activity,
+                  Ask me about market analysis, technical patterns, options flow, dark pool activity, 
                   or upload a chart for analysis.
                 </p>
-
+                
                 {/* Sample Queries */}
                 <div className="w-full max-w-md mt-4">
                   <TedAISampleQueries />
-
+                  
                   {/* Advanced Charts Button */}
                   <div className="mt-6">
-                    <Button
-                      variant="outline"
+                    <Button 
+                      variant="outline" 
                       className="w-full flex items-center justify-center gap-2 border-white/10"
                       onClick={() => navigate('/advanced-charts')}
                     >
@@ -562,7 +560,7 @@ export default function TedAI() {
                 </div>
               </div>
             )}
-
+            
             {messages.map((message) => (
               <div key={message.id} className={`mb-6 ${message.type === 'user' ? 'flex flex-row-reverse' : 'flex'}`}>
                 <div className={`rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0 ${message.type === 'user' ? 'bg-primary/20 ml-3' : 'bg-primary mr-3'}`}>
@@ -572,7 +570,7 @@ export default function TedAI() {
                     <Zap className="h-5 w-5 text-background" />
                   )}
                 </div>
-
+                
                 <div className={`flex-1 ${message.type === 'user' ? 'max-w-[80%]' : 'max-w-[90%]'}`}>
                   <div className="flex items-center mb-1">
                     <span className="font-medium text-sm">
@@ -582,10 +580,10 @@ export default function TedAI() {
                       {formatTime(message.timestamp)}
                     </span>
                   </div>
-
+                  
                   <div className={`${message.type === 'user' ? 'bg-primary/10 text-foreground' : 'bg-card text-foreground'} p-4 rounded-lg`}>
                     <div className="whitespace-pre-line">{message.content}</div>
-
+                    
                     {/* Attachments */}
                     {message.attachments && message.attachments.length > 0 && (
                       <div className="mt-3 space-y-2">
@@ -596,8 +594,8 @@ export default function TedAI() {
                                 <div className="bg-background/50 p-2 text-xs font-medium border-b border-white/10 flex justify-between items-center">
                                   <span>{attachment.title || 'Chart'}</span>
                                   <div className="flex gap-1">
-                                    <AddToBrain
-                                      content={`Chart: ${attachment.title || 'Market Data'}`}
+                                    <AddToBrain 
+                                      content={`Chart: ${attachment.title || 'Market Data'}`} 
                                       source="chart-data"
                                       metadata={{
                                         chartTitle: attachment.title,
@@ -615,17 +613,17 @@ export default function TedAI() {
                                     </button>
                                   </div>
                                 </div>
-                                <img
-                                  src={attachment.preview}
-                                  alt={attachment.title || 'Chart'}
+                                <img 
+                                  src={attachment.preview} 
+                                  alt={attachment.title || 'Chart'} 
                                   className="w-full h-auto"
                                 />
                               </div>
                             )}
-
+                            
                             {attachment.type === 'link' && (
-                              <a
-                                href={attachment.url || '#'}
+                              <a 
+                                href={attachment.url || '#'} 
                                 className="flex items-center gap-2 p-3 hover:bg-white/5"
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -642,9 +640,9 @@ export default function TedAI() {
 
                   {message.type === 'ai' && (
                     <div className="flex mt-1 gap-2">
-                      <AddToBrain
-                        content={message.content}
-                        source="ted-ai-chat"
+                      <AddToBrain 
+                        content={message.content} 
+                        source="ted-ai-chat" 
                         metadata={{
                           messageId: message.id,
                           hasAttachments: !!message.attachments?.length,
@@ -669,14 +667,14 @@ export default function TedAI() {
                 </div>
               </div>
             ))}
-
+            
             {/* Show streaming message if available */}
             {isStreaming && streamingMessage && (
               <div className="mb-6 flex">
                 <div className="rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0 bg-primary mr-3">
                   <Zap className="h-5 w-5 text-background" />
                 </div>
-
+                
                 <div className="flex-1 max-w-[90%]">
                   <div className="flex items-center mb-1">
                     <span className="font-medium text-sm">TED AI</span>
@@ -684,7 +682,7 @@ export default function TedAI() {
                       {formatTime(new Date().toISOString())}
                     </span>
                   </div>
-
+                  
                   <div className="bg-card text-foreground p-4 rounded-lg">
                     <div className="whitespace-pre-line">{streamingMessage}</div>
                     <div className="inline-block animate-pulse h-4 w-2 bg-primary/40 ml-0.5"></div>
@@ -692,7 +690,7 @@ export default function TedAI() {
                 </div>
               </div>
             )}
-
+            
             {/* Loading indicator (when not streaming) */}
             {isLoading && !isStreaming && (
               <div className="flex mb-6">
@@ -709,13 +707,13 @@ export default function TedAI() {
                 </div>
               </div>
             )}
-
+            
             <div ref={messagesEndRef} />
           </div>
         </div>
-
+        
         {/* Suggested commands section removed */}
-
+        
         {/* Input area */}
         <div className="p-4 border-t border-white/10">
           <div className="max-w-4xl mx-auto">
@@ -731,7 +729,7 @@ export default function TedAI() {
                   rows={1}
                 />
                 <div className="absolute top-3 right-3">
-                  <button
+                  <button 
                     className="p-1 rounded-md hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors"
                     title="Voice input"
                   >
@@ -739,26 +737,16 @@ export default function TedAI() {
                   </button>
                 </div>
               </div>
-
-              <div className="flex space-x-2">
-                <button
-                  className="flex items-center gap-1 px-3 py-3 rounded-md bg-card border border-white/10 hover:bg-card/80 text-primary transition-colors"
-                  title="Upload chart for analysis"
-                  onClick={() => setShowChartUploader(true)}
-                >
-                  <ImageIcon className="h-5 w-5" />
-                </button>
-
-                <button
-                  className="flex items-center gap-1 px-3 py-3 rounded-md bg-card border border-white/10 hover:bg-card/80 text-primary transition-colors"
-                  title="Upload document to knowledge base"
-                  onClick={() => setShowFileUploader(true)}
-                >
-                  <FileText className="h-5 w-5" />
-                </button>
-              </div>
-
-              <button
+              
+              <button 
+                className="flex items-center gap-1 px-3 py-3 rounded-md bg-card border border-white/10 hover:bg-card/80 text-primary transition-colors"
+                title="Upload chart for analysis"
+                onClick={() => setShowChartUploader(true)}
+              >
+                <UploadCloud className="h-5 w-5" />
+              </button>
+              
+              <button 
                 className={`flex items-center justify-center px-3 py-3 rounded-md transition-colors ${inputValue.trim() && !isLoading && !isStreaming ? 'bg-primary text-background' : 'bg-primary/30 text-muted-foreground cursor-not-allowed'}`}
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isLoading || isStreaming}
@@ -773,57 +761,6 @@ export default function TedAI() {
           </div>
         </div>
       </div>
-
-      {/* Chart uploader dialog */}
-      {showChartUploader && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card rounded-lg shadow-lg max-w-md w-full p-6 relative">
-            <button
-              className="absolute top-2 right-2 p-1 rounded-md hover:bg-white/10 transition-colors"
-              onClick={() => setShowChartUploader(false)}
-            >
-              <X className="h-5 w-5" />
-            </button>
-
-            <h3 className="text-lg font-medium mb-4">Upload Chart for Analysis</h3>
-
-            <ChartUploader
-              onUploadComplete={(chartUrl) => {
-                setShowChartUploader(false);
-                handleChartAnalysis(chartUrl);
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* File uploader dialog */}
-      {showFileUploader && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card rounded-lg shadow-lg max-w-md w-full p-6 relative">
-            <button
-              className="absolute top-2 right-2 p-1 rounded-md hover:bg-white/10 transition-colors"
-              onClick={() => setShowFileUploader(false)}
-            >
-              <X className="h-5 w-5" />
-            </button>
-
-            <h3 className="text-lg font-medium mb-4">Upload Document to Knowledge Base</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Upload documents to enhance TedAI's knowledge. Supported formats include PDF, TXT, DOC, DOCX, and more.
-            </p>
-
-            <TedAIFileUploader
-              onUploadComplete={(success) => {
-                if (success) {
-                  setShowFileUploader(false);
-                  toast.success("Document added to knowledge base");
-                }
-              }}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
