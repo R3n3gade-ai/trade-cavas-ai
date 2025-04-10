@@ -1,31 +1,43 @@
-import { lazy, type ReactNode, Suspense } from "react";
+import { lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import { userRoutes } from "./user-routes";
-
-export const SuspenseWrapper = ({ children }: { children: ReactNode }) => {
-  return <Suspense>{children}</Suspense>;
-};
+import ErrorBoundary from "./components/ErrorBoundary";
+import LazyWrapper from "./components/LazyWrapper";
+import SimpleLanding from "./simple-landing";
 
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const SomethingWentWrongPage = lazy(
   () => import("./pages/SomethingWentWrongPage"),
 );
 
-export const router = createBrowserRouter(
-  [
-    ...userRoutes,
-    {
-      path: "*",
-      element: (
-        <SuspenseWrapper>
+// Wrap all routes with LazyWrapper for proper suspense handling
+const wrappedRoutes = userRoutes.map(route => ({
+  ...route,
+  element: (
+    <ErrorBoundary>
+      <LazyWrapper>
+        {route.element}
+      </LazyWrapper>
+    </ErrorBoundary>
+  )
+}));
+
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <SimpleLanding />,
+    errorElement: <ErrorBoundary />
+  },
+  ...wrappedRoutes,
+  {
+    path: "*",
+    element: (
+      <ErrorBoundary>
+        <LazyWrapper>
           <NotFoundPage />
-        </SuspenseWrapper>
-      ),
-      errorElement: (
-        <SuspenseWrapper>
-          <SomethingWentWrongPage />
-        </SuspenseWrapper>
-      ),
-    },
-  ]
-);
+        </LazyWrapper>
+      </ErrorBoundary>
+    ),
+    errorElement: <ErrorBoundary fallback={<SomethingWentWrongPage />} />
+  },
+]);

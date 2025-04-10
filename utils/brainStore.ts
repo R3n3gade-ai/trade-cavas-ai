@@ -1,14 +1,51 @@
 import { create } from 'zustand';
-import brain from '../src/brain';
-import {
-  AddToBrainRequest,
-  AddToBrainResponse,
-  BrainItem,
-  AppApisTedBrainAddToBrainRequest,
-  AppApisTedBrainAddToBrainResponse,
-  BrainStoreStatusResponse,
-  QueryResult
-} from 'types';
+import brain from '../brain';
+// Mock types for brain store
+interface AddToBrainRequest {
+  user_id: string;
+  content: string;
+  source: string;
+  metadata: Record<string, any>;
+  context: { added_from: string };
+}
+
+interface AddToBrainResponse {
+  id: string;
+  timestamp: string;
+}
+
+interface BrainItem {
+  id: string;
+  user_id: string;
+  content: string;
+  metadata: Record<string, any>;
+  source: string;
+  timestamp: string;
+  created_at?: string;
+}
+
+interface AppApisTedBrainAddToBrainRequest {
+  content: string;
+  source: string;
+  metadata: Record<string, any>;
+  user_id: string;
+}
+
+interface AppApisTedBrainAddToBrainResponse {
+  id: string;
+}
+
+interface BrainStoreStatusResponse {
+  status: string;
+  item_count: number;
+}
+
+interface QueryResult {
+  id: string;
+  content: string;
+  metadata: Record<string, any>;
+  score: number;
+}
 
 interface BrainState {
   // Ted's Brain

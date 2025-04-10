@@ -3,15 +3,18 @@
 import { lazy } from "react";
 import { RouteObject } from "react-router";
 
-const AdvancedCharts = lazy(() => import("./pages/AdvancedCharts.tsx"));
+
+
 const App = lazy(() => import("./pages/App.tsx"));
 const Blog = lazy(() => import("./pages/Blog.tsx"));
-const Canvas = lazy(() => import("./src/pages/Canvas.tsx"));
-const Charts = lazy(() => import("./src/pages/Charts.tsx"));
+const Canvas = lazy(() => import("./pages/Canvas.tsx"));
+const Charts = lazy(() => import("./pages/Charts.tsx"));
 const ChatSocial = lazy(() => import("./pages/ChatSocial.tsx"));
 const Courses = lazy(() => import("./pages/Courses.tsx"));
 const DarkPool = lazy(() => import("./pages/DarkPool.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const SimpleDashboard = lazy(() => import("./pages/SimpleDashboard.tsx"));
+const BasicDashboard = lazy(() => import("./pages/BasicDashboard.tsx"));
 const FTClassic = lazy(() => import("./pages/FTClassic.tsx"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard.tsx"));
 const Login = lazy(() => import("./pages/Login.tsx"));
@@ -19,7 +22,7 @@ const Options = lazy(() => import("./pages/Options.tsx"));
 const OptionsGamma = lazy(() => import("./pages/OptionsGamma.tsx"));
 const PersonalEducation = lazy(() => import("./pages/PersonalEducation.tsx"));
 const Profile = lazy(() => import("./pages/Profile.tsx"));
-const Screeners = lazy(() => import("./src/pages/Screeners.tsx"));
+const Screeners = lazy(() => import("./pages/Screeners.tsx"));
 const Signup = lazy(() => import("./pages/Signup.tsx"));
 const Social = lazy(() => import("./pages/Social.tsx"));
 
@@ -27,8 +30,7 @@ const TedAI = lazy(() => import("./pages/TedAI.tsx"));
 
 export const userRoutes: RouteObject[] = [
 
-	{ path: "/advanced-charts", element: <AdvancedCharts />},
-	{ path: "/advancedcharts", element: <AdvancedCharts />},
+
 	{ path: "/", element: <App />},
 	{ path: "/blog", element: <Blog />},
 	{ path: "/canvas", element: <Canvas />},
@@ -38,7 +40,7 @@ export const userRoutes: RouteObject[] = [
 	{ path: "/courses", element: <Courses />},
 	{ path: "/dark-pool", element: <DarkPool />},
 	{ path: "/darkpool", element: <DarkPool />},
-	{ path: "/dashboard", element: <Dashboard />},
+	{ path: "/dashboard", element: <BasicDashboard />},
 	{ path: "/ft-classic", element: <FTClassic />},
 	{ path: "/ftclassic", element: <FTClassic />},
 	{ path: "/leaderboard", element: <Leaderboard />},

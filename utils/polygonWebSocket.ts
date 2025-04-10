@@ -1,206 +1,108 @@
-// In Databutton, API paths need to be constructed from API_URL and path prefix
-import { API_URL } from 'app';
+// Mock implementation of the Polygon WebSocket API
+// This is a temporary solution until we have a real implementation
 
-// Event types for Polygon.io options data
-export interface PolygonOptionsEvent {
-  ev: string; // Event type
-  sym?: string; // Symbol
-  x?: number; // Exchange ID
-  p?: number; // Price
-  s?: number; // Size
-  c?: number[]; // Condition codes
-  t?: number; // Timestamp (Unix MS)
-  q?: number; // Sequence number
-  // Additional fields based on event type
+// Mock data for options chain
+interface OptionData {
+  symbol: string;
+  price: number;
+  size: number;
+  timestamp: number;
+  optionType: string;
+  strike: number;
+  expiration: string;
 }
-
-interface WebSocketMessage {
-  error?: string;
-  status?: string;
-  message?: string;
-  [key: string]: any;
-}
-
-type MessageHandler = (data: PolygonOptionsEvent[] | WebSocketMessage) => void;
-type StatusHandler = (status: 'connecting' | 'connected' | 'disconnected' | 'error', message?: string) => void;
 
 class PolygonOptionsWebSocket {
-  private ws: WebSocket | null = null;
-  private clientId: string;
-  private messageHandlers: Set<MessageHandler> = new Set();
-  private statusHandlers: Set<StatusHandler> = new Set();
-  private reconnectInterval: number = 5000; // 5 seconds
-  private reconnectAttempts: number = 0;
-  private maxReconnectAttempts: number = 5;
-  private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
-  private currentSubscriptions: Set<string> = new Set();
-  
-  constructor() {
-    // Generate a unique client ID
-    this.clientId = `client_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-  }
-  
-  public connect(): void {
-    if (this.ws) {
-      return; // Already connected
+  private callback: ((data: any) => void) | null = null;
+  private symbol: string = '';
+  private connected: boolean = false;
+  private dataSimulationTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  // Connect to the WebSocket
+  connect(symbol: string, callback: (data: any) => void): boolean {
+    this.symbol = symbol;
+    this.callback = callback;
+    this.connected = true;
+
+    // Simulate a successful connection
+    console.log(`[Mock] Connected to Polygon WebSocket for ${symbol}`);
+
+    // Notify the callback of the connection status
+    if (this.callback) {
+      this.callback({
+        type: 'status',
+        status: 'connected',
+        message: `Connected to Polygon WebSocket for ${symbol}`
+      });
     }
-    
-    this.notifyStatusChange('connecting');
-    
-    try {
-      // Get URL hostname from API_URL
-      const urlObj = new URL(API_URL);
-      
-      // ALWAYS use secure WebSocket (wss://) regardless of the current protocol
-      // This ensures it works both on HTTP and HTTPS without mixed content errors
-      const wsProtocol = 'wss';
-      
-      // Correctly form the path for Databutton APIs
-      // Path structure: protocol://host/path_prefix/endpoint
-      // In our case, the endpoint is polygon_options/ws/options/{client_id}
-      
-      // For deployed apps, we need to extract the path prefix from the current API URL
-      // This is important for Databutton's routing to work correctly
-      
-      // Extract path prefix from API_URL (everything after the hostname)
-      const pathPrefix = urlObj.pathname || '';
-      
-      // Add diagnostic info
-      console.log('API URL:', API_URL);
-      console.log('URL hostname:', urlObj.host);
-      console.log('Path prefix:', pathPrefix);
-      
-      // Check if we need to disable WebSockets
-      if (window.location.protocol === 'https:' && urlObj.protocol === 'http:') {
-        throw new Error('Cannot establish WebSocket connection from HTTPS page to HTTP server due to security restrictions.');
-      }
-      
-      // Format: {ws_protocol}://{hostname}{path_prefix}/polygon_options/ws/options/{client_id}
-      const wsUrl = `${wsProtocol}://${urlObj.host}${pathPrefix}/polygon_options/ws/options/${this.clientId}`;
-      console.log('Connecting to WebSocket URL:', wsUrl);
-      this.ws = new WebSocket(wsUrl);
-      
-      this.ws.onopen = () => {
-        this.notifyStatusChange('connected');
-        this.reconnectAttempts = 0;
-        
-        // Resubscribe to previous subscriptions
-        this.currentSubscriptions.forEach(symbol => {
-          this.subscribeToSymbol(symbol);
-        });
+
+    // Start simulating data
+    this.simulateData();
+
+    return true;
+  }
+
+  // Disconnect from the WebSocket
+  disconnect(): boolean {
+    console.log('[Mock] Disconnected from Polygon WebSocket');
+
+    // Clear any pending simulated data
+    if (this.dataSimulationTimeout) {
+      clearTimeout(this.dataSimulationTimeout);
+      this.dataSimulationTimeout = null;
+    }
+
+    // Reset state
+    this.connected = false;
+    this.symbol = '';
+    this.callback = null;
+
+    return true;
+  }
+
+  // Check if connected
+  isConnected(): boolean {
+    return this.connected;
+  }
+
+  // Simulate receiving data from the WebSocket
+  private simulateData(): void {
+    if (!this.callback || !this.connected) return;
+
+    // Generate random option data
+    const optionTypes = ['call', 'put'];
+    const strikes = [
+      Math.floor(Math.random() * 10) + 440,
+      Math.floor(Math.random() * 10) + 450,
+      Math.floor(Math.random() * 10) + 460
+    ];
+    const expirations = [
+      '2023-06-16',
+      '2023-06-23',
+      '2023-06-30'
+    ];
+
+    // Simulate data every 5 seconds
+    this.dataSimulationTimeout = setTimeout(() => {
+      const optionType = optionTypes[Math.floor(Math.random() * optionTypes.length)];
+      const strike = strikes[Math.floor(Math.random() * strikes.length)];
+      const expiration = expirations[Math.floor(Math.random() * expirations.length)];
+
+      const data: OptionData = {
+        symbol: `O:${this.symbol}${expiration.replace(/-/g, '')}${optionType === 'call' ? 'C' : 'P'}${strike}000`,
+        price: Math.random() * 5,
+        size: Math.floor(Math.random() * 100) + 1,
+        timestamp: Date.now(),
+        optionType,
+        strike,
+        expiration
       };
-      
-      this.ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          // Notify all message handlers
-          this.messageHandlers.forEach(handler => handler(data));
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
-      };
-      
-      this.ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        // Get current URL for debugging
-        const currentUrl = window.location.href;
-        console.error('Current page URL:', currentUrl);
-        // Create a more descriptive error message
-        this.notifyStatusChange('error', `WebSocket connection error. URL: ${wsUrl}`);
-      };
-      
-      this.ws.onclose = () => {
-        this.notifyStatusChange('disconnected');
-        this.ws = null;
-        
-        // Attempt to reconnect if not max attempts
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
-          this.reconnectAttempts++;
-          this.reconnectTimeout = setTimeout(() => {
-            console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
-            this.connect();
-          }, this.reconnectInterval);
-        }
-      };
-    } catch (error) {
-      console.error('Error creating WebSocket connection:', error);
-      this.notifyStatusChange('error', 'Failed to create WebSocket connection');
-    }
-  }
-  
-  public disconnect(): void {
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = null;
-    }
-    
-    if (this.ws) {
-      this.ws.close();
-      this.ws = null;
-      this.notifyStatusChange('disconnected');
-    }
-    
-    this.currentSubscriptions.clear();
-  }
-  
-  public subscribeToSymbol(symbol: string): void {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      // Queue the subscription for when we connect
-      this.currentSubscriptions.add(symbol);
-      if (!this.ws) {
-        this.connect();
-      }
-      return;
-    }
-    
-    // Add to current subscriptions
-    this.currentSubscriptions.add(symbol);
-    
-    // Send subscription message
-    const message = {
-      action: 'subscribe',
-      symbol: symbol.toUpperCase()
-    };
-    
-    this.ws.send(JSON.stringify(message));
-  }
-  
-  public unsubscribeFromSymbol(symbol: string): void {
-    this.currentSubscriptions.delete(symbol);
-    
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      return;
-    }
-    
-    // Send unsubscribe message
-    const message = {
-      action: 'unsubscribe',
-      symbol: symbol.toUpperCase()
-    };
-    
-    this.ws.send(JSON.stringify(message));
-  }
-  
-  public onMessage(handler: MessageHandler): () => void {
-    this.messageHandlers.add(handler);
-    
-    // Return a function to remove the handler
-    return () => {
-      this.messageHandlers.delete(handler);
-    };
-  }
-  
-  public onStatusChange(handler: StatusHandler): () => void {
-    this.statusHandlers.add(handler);
-    
-    // Return a function to remove the handler
-    return () => {
-      this.statusHandlers.delete(handler);
-    };
-  }
-  
-  private notifyStatusChange(status: 'connecting' | 'connected' | 'disconnected' | 'error', message?: string): void {
-    this.statusHandlers.forEach(handler => handler(status, message));
+
+      this.callback(data);
+
+      // Continue simulating data
+      this.simulateData();
+    }, 5000);
   }
 }
 

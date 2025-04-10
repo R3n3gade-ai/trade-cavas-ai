@@ -1,4 +1,5 @@
-import { API_URL } from '../src/constants';
+// Define API_URL directly since the import is causing issues
+const API_URL = "/api";
 
 // Types for Polygon API responses
 export interface PolygonBar {

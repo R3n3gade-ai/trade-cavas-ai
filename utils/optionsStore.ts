@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import polygonWebSocket, { PolygonOptionsEvent } from './polygonWebSocket';
-import brain from 'brain';
+import brain from '../brain';
 import { getOptionsChain } from './optionsApi';
 
 // Define types for option contracts and chain
@@ -41,7 +41,7 @@ interface OptionsState {
   underlyingPrice: number | null;
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
   setSelectedSymbol: (symbol: string) => void;
   setSelectedExpiration: (expiration: string | null) => void;
@@ -71,7 +71,7 @@ const useOptionsStore = create<OptionsState & WebSocketState>((set, get) => ({
   // Polygon WebSocket state
   wsStatus: 'disconnected' as 'connecting' | 'connected' | 'disconnected' | 'error',
   wsStatusMessage: '',
-  
+
   // Actions
   setSelectedSymbol: (symbol) => {
     // If symbol changed, unsubscribe from old and subscribe to new
@@ -84,24 +84,24 @@ const useOptionsStore = create<OptionsState & WebSocketState>((set, get) => ({
       get().fetchOptionsChain(symbol);
     }
   },
-  
+
   setSelectedExpiration: (expiration) => {
     set({ selectedExpiration: expiration });
   },
-  
+
   fetchOptionsChain: async (symbol, expiration) => {
     try {
       set({ isLoading: true, error: null });
-      
+
       // Still initialize WebSocket for real-time updates if available
       // But the data will primarily come from the REST API now
       if (get().wsStatus !== 'connected' && get().wsStatus !== 'connecting') {
         initWebSocket();
       }
-      
+
       // Set status to show we're refreshing data
       set({ wsStatus: 'connecting', wsStatusMessage: 'Fetching options data...' });
-      
+
       // Make REST API call to get initial options chain data
       let data;
       try {
@@ -117,10 +117,10 @@ const useOptionsStore = create<OptionsState & WebSocketState>((set, get) => ({
           error: 'Failed to fetch options data. Please try again later.'
         };
       }
-      
+
       if (data.error) {
-        set({ 
-          isLoading: false, 
+        set({
+          isLoading: false,
           error: data.error,
           chain: {},
           expirations: [],
@@ -130,10 +130,10 @@ const useOptionsStore = create<OptionsState & WebSocketState>((set, get) => ({
         });
         return;
       }
-      
+
       // Subscribe to the symbol in the WebSocket (as a backup/supplement)
       polygonWebSocket.subscribeToSymbol(symbol);
-      
+
       // Update state with API data
       set({
         isLoading: false,
@@ -145,7 +145,7 @@ const useOptionsStore = create<OptionsState & WebSocketState>((set, get) => ({
         wsStatus: 'connected',
         wsStatusMessage: 'Options data loaded'
       });
-      
+
       // Set up periodic polling to refresh the data every 15 minutes
       // This ensures data stays fresh even if WebSockets don't work
       const pollInterval = setInterval(async () => {
@@ -154,7 +154,7 @@ const useOptionsStore = create<OptionsState & WebSocketState>((set, get) => ({
           if (get().selectedSymbol === symbol) {
             console.log('Polling for fresh options data...');
             set({ wsStatus: 'connecting', wsStatusMessage: 'Refreshing data...' });
-            
+
             const freshData = await getOptionsChain(symbol);
             if (freshData.error) {
               console.error('Error in polling update:', freshData.error);
@@ -175,13 +175,13 @@ const useOptionsStore = create<OptionsState & WebSocketState>((set, get) => ({
           console.error('Error polling for options data:', error);
         }
       }, 900000); // 15 minutes (900,000 ms)
-      
+
       // Return a cleanup function to clear the interval
       return () => clearInterval(pollInterval);
     } catch (error) {
       console.error('Error fetching options chain:', error);
-      set({ 
-        isLoading: false, 
+      set({
+        isLoading: false,
         error: 'Failed to fetch options data. Please try again later.',
         chain: {},
         expirations: [],
@@ -191,7 +191,7 @@ const useOptionsStore = create<OptionsState & WebSocketState>((set, get) => ({
       });
     }
   },
-  
+
   updateOptionsData: (event: PolygonOptionsEvent) => {
     // Process incoming WebSocket data and update the store
     // Polygon sends different event types (T = trade, Q = quote, etc.)
@@ -199,38 +199,38 @@ const useOptionsStore = create<OptionsState & WebSocketState>((set, get) => ({
       console.log('Invalid event format:', event);
       return;
     }
-    
+
     console.log('Received options data:', event);
-    
+
     // Parse the option symbol to extract information
     // Format is typically: O:TICKER[YYMMDD][C/P]STRIKE
     // Example: O:SPY230616C00410000
     try {
       const symbolPattern = /O:([A-Z]+)(\d{6})([CP])(\d+)/;
       const match = event.sym.match(symbolPattern);
-      
+
       if (!match) {
         console.log('Could not parse option symbol:', event.sym);
         return;
       }
-      
+
       const [_, ticker, dateStr, typeLetter, strikeStr] = match;
-      
+
       // Format date string (YYMMDD) to expirationDate format (YYYY-MM-DD)
       const year = `20${dateStr.substring(0, 2)}`;
       const month = dateStr.substring(2, 4);
       const day = dateStr.substring(4, 6);
       const expirationDate = `${year}-${month}-${day}`;
-      
+
       // Format strike price (divide by 1000 as many APIs use this format)
       const strike = parseInt(strikeStr) / 1000;
-      
+
       // Determine contract type
       const contractType = typeLetter === 'C' ? 'call' : 'put';
-      
+
       // Get current chain data
       const { chain, selectedExpiration } = get();
-      
+
       // For now, we'll just log the parsed information
       console.log('Parsed option:', {
         ticker,
@@ -241,25 +241,25 @@ const useOptionsStore = create<OptionsState & WebSocketState>((set, get) => ({
         size: event.s,
         timestamp: event.t
       });
-      
+
       // If we have a matching expiration date in our chain
       if (chain[expirationDate]) {
         // Get the current contract data
-        const contracts = contractType === 'call' ? 
-          chain[expirationDate].calls : 
+        const contracts = contractType === 'call' ?
+          chain[expirationDate].calls :
           chain[expirationDate].puts;
-        
+
         // Find matching strike price
         const strikeKey = strike.toString();
-        
+
         if (contracts[strikeKey]) {
           // Update the contract with new data depending on event type
           if (event.ev === 'T') { // Trade event
             // Create a shallow copy of the chain to trigger state update
             const newChain = { ...chain };
-            
+
             // Create a shallow copy of the expiration date's data
-            newChain[expirationDate] = { 
+            newChain[expirationDate] = {
               ...chain[expirationDate],
               [contractType === 'call' ? 'calls' : 'puts']: {
                 ...contracts,
@@ -271,7 +271,7 @@ const useOptionsStore = create<OptionsState & WebSocketState>((set, get) => ({
                 }
               }
             };
-            
+
             // Update the store with the new chain
             set({ chain: newChain });
           }
@@ -282,7 +282,7 @@ const useOptionsStore = create<OptionsState & WebSocketState>((set, get) => ({
       console.error('Error processing options data:', error);
     }
   },
-  
+
   setWebSocketStatus: (status, message) => {
     set({
       wsStatus: status,
@@ -314,12 +314,12 @@ function initWebSocket() {
       useOptionsStore.getState().setWebSocketStatus('connected', data.message);
     }
   });
-  
+
   // Set up status handler
   polygonWebSocket.onStatusChange((status, message) => {
     useOptionsStore.getState().setWebSocketStatus(status, message);
   });
-  
+
   // Connect to WebSocket
   polygonWebSocket.connect();
 };
