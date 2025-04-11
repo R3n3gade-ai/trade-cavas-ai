@@ -40,6 +40,14 @@ const Charts: React.FC = () => {
     timestamp: number;
   } | null>(null);
 
+  // Chart configuration state
+  const [chartTheme, setChartTheme] = useState<'light' | 'dark'>('dark');
+  const [chartType, setChartType] = useState<string>('candle_solid');
+  const [yAxisType, setYAxisType] = useState<'normal' | 'percentage' | 'log'>('normal');
+  const [language, setLanguage] = useState<'en-US' | 'zh-CN'>('en-US');
+  const [showSettingsPanel, setShowSettingsPanel] = useState(false);
+  const settingsPanelRef = useRef<HTMLDivElement>(null);
+
   // Available periods
   const periods = [
     { text: '1m', value: '1m' },
@@ -230,32 +238,58 @@ const Charts: React.FC = () => {
       } catch (error) {
         console.error('Error getting supported overlays:', error);
       }
-      // Create chart instance with enhanced features
+      // Create chart instance with all available features
       chartRef.current = klinecharts.init(chartContainerRef.current, {
-        theme: 'dark',
+        // Theme configuration
+        theme: chartTheme,
+
+        // Grid configuration
         grid: {
           show: true,
           horizontal: {
             show: true,
             size: 1,
-            color: 'rgba(255, 255, 255, 0.1)',
+            color: chartTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
             style: 'solid',
           },
           vertical: {
             show: true,
             size: 1,
-            color: 'rgba(255, 255, 255, 0.1)',
+            color: chartTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
             style: 'solid',
           },
         },
+
+        // Candle configuration
         candle: {
-          type: 'candle_solid',
+          type: chartType,
           styles: {
             upColor: '#26A69A',
             downColor: '#EF5350',
             noChangeColor: '#888888',
           },
+          tooltip: {
+            showRule: 'always',
+            showType: 'standard',
+            custom: (kLineData: any) => {
+              const { timestamp, open, high, low, close, volume } = kLineData;
+              return [
+                { title: 'Time', value: new Date(timestamp).toLocaleString() },
+                { title: 'Open', value: open.toFixed(2) },
+                { title: 'High', value: high.toFixed(2) },
+                { title: 'Low', value: low.toFixed(2) },
+                { title: 'Close', value: close.toFixed(2) },
+                { title: 'Volume', value: volume.toFixed(0) },
+              ];
+            },
+          },
+          area: {
+            lineSize: 2,
+            fillColor: chartTheme === 'dark' ? 'rgba(38, 166, 154, 0.2)' : 'rgba(38, 166, 154, 0.1)',
+          },
         },
+
+        // Technical indicator configuration
         technicalIndicator: {
           bar: {
             upColor: '#26A69A',
@@ -265,7 +299,13 @@ const Charts: React.FC = () => {
           line: {
             size: 1,
           },
+          tooltip: {
+            showRule: 'always',
+            showType: 'standard',
+          },
         },
+
+        // Crosshair configuration
         crosshair: {
           show: true,
           horizontal: {
@@ -275,12 +315,12 @@ const Charts: React.FC = () => {
               style: 'dashed',
               dashedValue: [4, 2],
               size: 1,
-              color: 'rgba(255, 255, 255, 0.3)',
+              color: chartTheme === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)',
             },
             text: {
               show: true,
-              color: '#FFFFFF',
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: chartTheme === 'dark' ? '#FFFFFF' : '#000000',
+              backgroundColor: chartTheme === 'dark' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)',
               borderRadius: 2,
               padding: [4, 6],
               fontSize: 12,
@@ -293,56 +333,65 @@ const Charts: React.FC = () => {
               style: 'dashed',
               dashedValue: [4, 2],
               size: 1,
-              color: 'rgba(255, 255, 255, 0.3)',
+              color: chartTheme === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)',
             },
             text: {
               show: true,
-              color: '#FFFFFF',
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: chartTheme === 'dark' ? '#FFFFFF' : '#000000',
+              backgroundColor: chartTheme === 'dark' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)',
               borderRadius: 2,
               padding: [4, 6],
               fontSize: 12,
             },
           },
         },
+
+        // Y-axis configuration
         yAxis: {
           show: true,
           position: 'right',
-          type: 'normal',
+          type: yAxisType,
           inside: false,
           reverse: false,
           tickText: {
             show: true,
-            color: 'rgba(255, 255, 255, 0.7)',
+            color: chartTheme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
             fontSize: 12,
             paddingRight: 4,
           },
           axisLine: {
             show: true,
-            color: 'rgba(255, 255, 255, 0.2)',
+            color: chartTheme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
             size: 1,
           },
         },
+
+        // X-axis configuration
         xAxis: {
           show: true,
           tickText: {
             show: true,
-            color: 'rgba(255, 255, 255, 0.7)',
+            color: chartTheme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
             fontSize: 12,
             paddingTop: 4,
           },
           axisLine: {
             show: true,
-            color: 'rgba(255, 255, 255, 0.2)',
+            color: chartTheme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
             size: 1,
           },
         },
+
+        // Separator configuration
         separator: {
           size: 1,
-          color: 'rgba(255, 255, 255, 0.2)',
+          color: chartTheme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
           fill: true,
-          activeBackgroundColor: 'rgba(230, 230, 230, 0.15)',
+          activeBackgroundColor: chartTheme === 'dark' ? 'rgba(230, 230, 230, 0.15)' : 'rgba(30, 30, 30, 0.1)',
         },
+
+        // Locale configuration
+        locale: language,
       });
 
       // Generate sample data
@@ -603,8 +652,59 @@ const Charts: React.FC = () => {
           type,
         },
       });
+      setChartType(type);
     }
   };
+
+  // Handle changing chart theme
+  const handleChangeTheme = (theme: 'light' | 'dark') => {
+    if (chartRef.current) {
+      chartRef.current.setStyles({
+        theme,
+      });
+      setChartTheme(theme);
+    }
+  };
+
+  // Handle changing Y-axis type
+  const handleChangeYAxisType = (type: 'normal' | 'percentage' | 'log') => {
+    if (chartRef.current) {
+      chartRef.current.setPaneOptions({
+        id: 'candle_pane',
+        yAxis: {
+          type,
+        },
+      });
+      setYAxisType(type);
+    }
+  };
+
+  // Handle changing language
+  const handleChangeLanguage = (locale: 'en-US' | 'zh-CN') => {
+    if (chartRef.current) {
+      chartRef.current.setLocale(locale);
+      setLanguage(locale);
+    }
+  };
+
+  // Handle toggling settings panel
+  const handleToggleSettingsPanel = () => {
+    setShowSettingsPanel(!showSettingsPanel);
+  };
+
+  // Handle click outside to close settings panel
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (settingsPanelRef.current && !settingsPanelRef.current.contains(event.target as Node)) {
+        setShowSettingsPanel(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Handle clicking on a drawing tool category
   const handleDrawingToolCategoryClick = (categoryId: string) => {
@@ -1327,7 +1427,7 @@ const Charts: React.FC = () => {
             <div className="flex items-center space-x-1">
               {/* Candle Chart */}
               <button
-                className="p-1.5 rounded hover:bg-card/50"
+                className={`p-1.5 rounded ${chartType === 'candle_solid' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
                 onClick={() => handleChangeChartType('candle_solid')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1342,7 +1442,7 @@ const Charts: React.FC = () => {
 
               {/* Line Chart */}
               <button
-                className="p-1.5 rounded hover:bg-card/50"
+                className={`p-1.5 rounded ${chartType === 'line' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
                 onClick={() => handleChangeChartType('line')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1353,7 +1453,7 @@ const Charts: React.FC = () => {
 
               {/* OHLC Chart */}
               <button
-                className="p-1.5 rounded hover:bg-card/50"
+                className={`p-1.5 rounded ${chartType === 'ohlc' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
                 onClick={() => handleChangeChartType('ohlc')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1365,7 +1465,7 @@ const Charts: React.FC = () => {
 
               {/* Area Chart */}
               <button
-                className="p-1.5 rounded hover:bg-card/50"
+                className={`p-1.5 rounded ${chartType === 'area' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
                 onClick={() => handleChangeChartType('area')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1407,6 +1507,95 @@ const Charts: React.FC = () => {
                   <path d="M9 10h6"></path>
                 </svg>
               </button>
+            </div>
+
+            {/* Divider */}
+            <div className="h-6 w-px bg-white/10"></div>
+
+            {/* Settings Button */}
+            <div className="relative">
+              <button
+                className={`p-1.5 rounded ${showSettingsPanel ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+                onClick={handleToggleSettingsPanel}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"></path>
+                </svg>
+              </button>
+
+              {/* Settings Panel */}
+              {showSettingsPanel && (
+                <div
+                  ref={settingsPanelRef}
+                  className="absolute top-full right-0 mt-2 w-64 bg-card border border-white/10 rounded-md shadow-lg p-4 z-10"
+                >
+                  <h3 className="font-semibold mb-3">Chart Settings</h3>
+
+                  {/* Theme Selection */}
+                  <div className="mb-4">
+                    <label className="block text-xs text-muted-foreground mb-2">Theme</label>
+                    <div className="flex space-x-2">
+                      <button
+                        className={`px-3 py-1 text-xs rounded ${chartTheme === 'dark' ? 'bg-primary text-primary-foreground' : 'bg-card/50 hover:bg-card border border-white/10'}`}
+                        onClick={() => handleChangeTheme('dark')}
+                      >
+                        Dark
+                      </button>
+                      <button
+                        className={`px-3 py-1 text-xs rounded ${chartTheme === 'light' ? 'bg-primary text-primary-foreground' : 'bg-card/50 hover:bg-card border border-white/10'}`}
+                        onClick={() => handleChangeTheme('light')}
+                      >
+                        Light
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Y-Axis Type Selection */}
+                  <div className="mb-4">
+                    <label className="block text-xs text-muted-foreground mb-2">Y-Axis Type</label>
+                    <div className="flex space-x-2">
+                      <button
+                        className={`px-3 py-1 text-xs rounded ${yAxisType === 'normal' ? 'bg-primary text-primary-foreground' : 'bg-card/50 hover:bg-card border border-white/10'}`}
+                        onClick={() => handleChangeYAxisType('normal')}
+                      >
+                        Normal
+                      </button>
+                      <button
+                        className={`px-3 py-1 text-xs rounded ${yAxisType === 'percentage' ? 'bg-primary text-primary-foreground' : 'bg-card/50 hover:bg-card border border-white/10'}`}
+                        onClick={() => handleChangeYAxisType('percentage')}
+                      >
+                        Percentage
+                      </button>
+                      <button
+                        className={`px-3 py-1 text-xs rounded ${yAxisType === 'log' ? 'bg-primary text-primary-foreground' : 'bg-card/50 hover:bg-card border border-white/10'}`}
+                        onClick={() => handleChangeYAxisType('log')}
+                      >
+                        Log
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Language Selection */}
+                  <div className="mb-4">
+                    <label className="block text-xs text-muted-foreground mb-2">Language</label>
+                    <div className="flex space-x-2">
+                      <button
+                        className={`px-3 py-1 text-xs rounded ${language === 'en-US' ? 'bg-primary text-primary-foreground' : 'bg-card/50 hover:bg-card border border-white/10'}`}
+                        onClick={() => handleChangeLanguage('en-US')}
+                      >
+                        English
+                      </button>
+                      <button
+                        className={`px-3 py-1 text-xs rounded ${language === 'zh-CN' ? 'bg-primary text-primary-foreground' : 'bg-card/50 hover:bg-card border border-white/10'}`}
+                        onClick={() => handleChangeLanguage('zh-CN')}
+                      >
+                        中文
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
