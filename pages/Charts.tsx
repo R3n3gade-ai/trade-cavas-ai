@@ -221,6 +221,8 @@ const Charts: React.FC = () => {
   // Initialize chart when component mounts
   useEffect(() => {
     if (chartContainerRef.current && !chartRef.current) {
+      // Log available overlay types for debugging
+      console.log('Available overlay types:', klinecharts.getOverlayClass());
       // Create chart instance with enhanced features
       chartRef.current = klinecharts.init(chartContainerRef.current, {
         theme: 'dark',
@@ -791,37 +793,90 @@ const Charts: React.FC = () => {
       setSelectedDrawingTool(toolId);
       setShowDrawingToolSubmenu(false);
 
-      // Get the corresponding overlay name
-      const overlayName = drawingToolToOverlayMap[toolId];
-
       try {
         // First, cancel any existing drawing operation
         chartRef.current.removeOverlay();
 
-        if (toolId === 'eraser') {
-          // Special case for eraser - enable erase mode
-          chartRef.current.createOverlay({
-            name: 'eraser',
-            mode: 'normal',
-          });
-          return;
+        // Special cases for different tools
+        switch (toolId) {
+          case 'line':
+            chartRef.current.createOverlay({
+              name: 'segment',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'ray':
+            chartRef.current.createOverlay({
+              name: 'ray',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'segment':
+            chartRef.current.createOverlay({
+              name: 'segment',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'arrow':
+            chartRef.current.createOverlay({
+              name: 'arrow',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'horizontal_line':
+            chartRef.current.createOverlay({
+              name: 'horizontalStraightLine',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'vertical_line':
+            chartRef.current.createOverlay({
+              name: 'verticalStraightLine',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'rect':
+            chartRef.current.createOverlay({
+              name: 'rect',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'circle':
+            chartRef.current.createOverlay({
+              name: 'circle',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'text':
+            chartRef.current.createOverlay({
+              name: 'text',
+              styles: { color: '#1E88E5', size: 14 },
+              extendData: 'Text',
+            });
+            break;
+          case 'fibonacci_retracement':
+            chartRef.current.createOverlay({
+              name: 'fibonacciLine',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'eraser':
+            chartRef.current.createOverlay({
+              name: 'eraser',
+            });
+            break;
+          default:
+            // For any other tool, try to use the segment as fallback
+            chartRef.current.createOverlay({
+              name: 'segment',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            console.log(`Using segment as fallback for tool: ${toolId}`);
+            break;
         }
 
-        if (overlayName) {
-          // Enable drawing mode for the chart
-          chartRef.current.createOverlay({
-            name: overlayName,
-            styles: {
-              color: '#1E88E5',
-              size: 1,
-            },
-          });
-
-          // Log success message
-          console.log(`Activated drawing tool: ${toolId} (${overlayName})`);
-        } else {
-          console.error(`No overlay mapping found for tool: ${toolId}`);
-        }
+        // Log success message
+        console.log(`Activated drawing tool: ${toolId}`);
       } catch (error) {
         console.error(`Error activating drawing tool ${toolId}:`, error);
       }
