@@ -13,6 +13,12 @@ const Charts: React.FC = () => {
   const [showIndicatorsDropdown, setShowIndicatorsDropdown] = useState(false);
   const indicatorsDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Drawing tools state
+  const [selectedDrawingTool, setSelectedDrawingTool] = useState<string | null>(null);
+  const [activeDrawingToolCategory, setActiveDrawingToolCategory] = useState<string | null>(null);
+  const [showDrawingToolSubmenu, setShowDrawingToolSubmenu] = useState(false);
+  const drawingToolSubmenuRef = useRef<HTMLDivElement>(null);
+
   // Available periods
   const periods = [
     { text: '1m', value: '1m' },
@@ -38,6 +44,127 @@ const Charts: React.FC = () => {
     { name: 'WR', series: 'indicator', params: [6, 10, 14] },
     { name: 'CCI', series: 'indicator', params: [13, 21, 34] },
     { name: 'CR', series: 'indicator', params: [10, 20, 40, 60] },
+  ];
+
+  // Drawing tool categories and tools
+  const drawingToolCategories = [
+    {
+      id: 'line',
+      name: 'Line',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 12h14"></path>
+        </svg>
+      ),
+      tools: [
+        { id: 'line', name: 'Line' },
+        { id: 'ray', name: 'Ray' },
+        { id: 'arrow', name: 'Arrow' },
+        { id: 'horizontal_line', name: 'Horizontal Line' },
+        { id: 'horizontal_ray', name: 'Horizontal Ray' },
+        { id: 'vertical_line', name: 'Vertical Line' },
+        { id: 'price_line', name: 'Price Line' },
+      ],
+    },
+    {
+      id: 'segment',
+      name: 'Segment',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 3l6 6"></path>
+          <path d="M15 15l6 6"></path>
+        </svg>
+      ),
+      tools: [
+        { id: 'segment', name: 'Segment' },
+        { id: 'parallel_line', name: 'Parallel Line' },
+        { id: 'price_channel', name: 'Price Channel' },
+      ],
+    },
+    {
+      id: 'rect',
+      name: 'Rectangle',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        </svg>
+      ),
+      tools: [
+        { id: 'rect', name: 'Rectangle' },
+        { id: 'parallel_channel', name: 'Parallel Channel' },
+      ],
+    },
+    {
+      id: 'circle',
+      name: 'Circle',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+        </svg>
+      ),
+      tools: [
+        { id: 'circle', name: 'Circle' },
+        { id: 'arc', name: 'Arc' },
+      ],
+    },
+    {
+      id: 'fibonacci',
+      name: 'Fibonacci',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 3v18h18"></path>
+          <path d="m3 9 18-6"></path>
+        </svg>
+      ),
+      tools: [
+        { id: 'fibonacci_line', name: 'Fibonacci Line' },
+        { id: 'fibonacci_retracement', name: 'Fibonacci Retracement' },
+        { id: 'fibonacci_extension', name: 'Fibonacci Extension' },
+        { id: 'fibonacci_circle', name: 'Fibonacci Circle' },
+      ],
+    },
+    {
+      id: 'wave',
+      name: 'Wave',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M2 12s1.5-4 5-4 5 4 9 4 5-4 5-4"></path>
+        </svg>
+      ),
+      tools: [
+        { id: 'wave_principle', name: 'Wave Principle' },
+        { id: 'wave_five', name: 'Wave Five' },
+        { id: 'wave_three', name: 'Wave Three' },
+      ],
+    },
+    {
+      id: 'text',
+      name: 'Text',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 7V4h16v3"></path>
+          <path d="M9 20h6"></path>
+          <path d="M12 4v16"></path>
+        </svg>
+      ),
+      tools: [
+        { id: 'text', name: 'Text' },
+      ],
+    },
+    {
+      id: 'eraser',
+      name: 'Eraser',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path>
+          <path d="M22 21H7"></path>
+          <path d="m5 11 9 9"></path>
+        </svg>
+      ),
+      tools: [
+        { id: 'eraser', name: 'Eraser' },
+      ],
+    },
   ];
 
   // Generate sample data for demonstration
@@ -184,13 +311,59 @@ const Charts: React.FC = () => {
     }
   };
 
-  // Handle selecting a drawing tool
-  const handleSelectDrawingTool = (tool: string) => {
-    if (chartRef.current) {
-      // In a real implementation, you would activate the drawing tool
-      console.log(`Selected drawing tool: ${tool}`);
+  // Handle clicking on a drawing tool category
+  const handleDrawingToolCategoryClick = (categoryId: string) => {
+    if (activeDrawingToolCategory === categoryId) {
+      // If the same category is clicked again, toggle the submenu
+      setShowDrawingToolSubmenu(!showDrawingToolSubmenu);
+    } else {
+      // If a different category is clicked, show the submenu for that category
+      setActiveDrawingToolCategory(categoryId);
+      setShowDrawingToolSubmenu(true);
     }
   };
+
+  // Handle selecting a specific drawing tool
+  const handleSelectDrawingTool = (toolId: string) => {
+    if (chartRef.current) {
+      // Set the selected drawing tool
+      setSelectedDrawingTool(toolId);
+      setShowDrawingToolSubmenu(false);
+
+      // In a real implementation, you would activate the drawing tool on the chart
+      console.log(`Selected drawing tool: ${toolId}`);
+
+      // For demonstration purposes, let's simulate activating the drawing tool
+      try {
+        // This is a simplified example - in a real implementation, you would use the proper API
+        // to activate the drawing tool based on its type
+        chartRef.current.createOverlay({
+          name: toolId,
+          points: [], // Points will be added by user interaction
+          styles: {
+            color: '#1E88E5',
+            size: 1,
+          },
+        });
+      } catch (error) {
+        console.error('Error activating drawing tool:', error);
+      }
+    }
+  };
+
+  // Handle click outside to close drawing tool submenu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (drawingToolSubmenuRef.current && !drawingToolSubmenuRef.current.contains(event.target as Node)) {
+        setShowDrawingToolSubmenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <DashboardLayout title="Charts" showRefresh={false}>
@@ -277,36 +450,41 @@ const Charts: React.FC = () => {
         {/* Main Chart Area with Left Sidebar */}
         <div className="flex-1 flex">
           {/* Left Toolbar - Drawing Tools */}
-          <div className="w-12 border-r border-white/10 flex flex-col items-center py-2 space-y-2">
-            {/* Line Tool */}
-            <button
-              className="p-2 rounded hover:bg-card/50"
-              onClick={() => handleSelectDrawingTool('line')}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14"></path>
-              </svg>
-            </button>
+          <div className="w-12 border-r border-white/10 flex flex-col items-center py-2 space-y-2 relative">
+            {/* Drawing Tool Categories */}
+            {drawingToolCategories.map((category) => (
+              <button
+                key={category.id}
+                className={`p-2 rounded ${activeDrawingToolCategory === category.id && showDrawingToolSubmenu ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+                onClick={() => handleDrawingToolCategoryClick(category.id)}
+              >
+                {category.icon}
+              </button>
+            ))}
 
-            {/* Horizontal Line Tool */}
-            <button
-              className="p-2 rounded hover:bg-card/50"
-              onClick={() => handleSelectDrawingTool('horizontal')}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 12h18"></path>
-              </svg>
-            </button>
-
-            {/* Rectangle Tool */}
-            <button
-              className="p-2 rounded hover:bg-card/50"
-              onClick={() => handleSelectDrawingTool('rect')}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              </svg>
-            </button>
+            {/* Drawing Tool Submenu */}
+            {showDrawingToolSubmenu && activeDrawingToolCategory && (
+              <div
+                ref={drawingToolSubmenuRef}
+                className="absolute left-full top-0 ml-2 w-48 bg-card border border-white/10 rounded-md shadow-lg py-1 z-10"
+              >
+                <div className="px-3 py-2 text-xs font-semibold border-b border-white/10">
+                  {drawingToolCategories.find(c => c.id === activeDrawingToolCategory)?.name}
+                </div>
+                {drawingToolCategories
+                  .find(c => c.id === activeDrawingToolCategory)
+                  ?.tools.map(tool => (
+                    <button
+                      key={tool.id}
+                      className={`w-full text-left px-3 py-1.5 text-xs ${selectedDrawingTool === tool.id ? 'bg-primary/20' : 'hover:bg-card/80'}`}
+                      onClick={() => handleSelectDrawingTool(tool.id)}
+                    >
+                      {tool.name}
+                    </button>
+                  ))
+                }
+              </div>
+            )}
           </div>
 
           {/* Chart */}
