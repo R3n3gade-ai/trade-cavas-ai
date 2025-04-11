@@ -1,24 +1,30 @@
-import { Suspense, useTransition } from "react";
-import { DEFAULT_THEME } from "./constants/default-theme";
-import { Head } from "./internal-components/Head";
-import { ThemeProvider } from "./internal-components/ThemeProvider";
-import { OuterErrorBoundary } from "./prod-components/OuterErrorBoundary";
-import { RouterProviderWithTransition } from "./router-new";
-import LoadingFallback from "./components/LoadingFallback";
-import { Toaster } from "./components/ui/toaster";
+import { Suspense, useTransition, useEffect } from "react";
+import { router } from "./router-new";
+import { RouterProvider } from "react-router-dom";
+import { Toaster } from "sonner";
+import { useThemeStore } from "./utils/themeStore";
 
 export const AppWrapper = () => {
-  const [isPending, startTransition] = useTransition();
+  const { applyTheme } = useThemeStore();
+
+  // Apply theme on component mount
+  useEffect(() => {
+    applyTheme();
+  }, [applyTheme]);
 
   return (
-    <OuterErrorBoundary>
-      <ThemeProvider defaultTheme={DEFAULT_THEME}>
-        <Suspense fallback={<LoadingFallback />}>
-          <RouterProviderWithTransition />
-        </Suspense>
-        <Head />
-        <Toaster />
-      </ThemeProvider>
-    </OuterErrorBoundary>
+    <>
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p>Loading...</p>
+          </div>
+        </div>
+      }>
+        <RouterProvider router={router} />
+      </Suspense>
+      <Toaster position="top-center" richColors />
+    </>
   );
 };

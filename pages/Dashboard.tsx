@@ -4,15 +4,15 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { BarChart2, Activity, LineChart, PieChart, TrendingUp, Settings, Calendar, Search, Brain } from "lucide-react";
 import { useDashboardStore } from "../utils/store";
-import { DashboardLayout } from "../src/components/DashboardLayout";
-import { MiniChart } from "../src/components/MiniChart";
-import { PercentageChange } from "../src/components/PercentageChange";
-import { WatchlistCard } from "../src/components/WatchlistCard";
-import { MarketNewsCard } from "../src/components/MarketNewsCard";
-import { MarketCapTable } from "../src/components/MarketCapTable";
-import { StockDetailModal } from "../src/components/StockDetailModal";
-import { TedsBrainContainer2 } from "../src/components/TedsBrainContainer2";
-import { TedsBrainDashboardTool } from "../src/components/TedsBrainDashboardTool";
+import { DashboardLayout } from "../components/DashboardLayout";
+// import { MiniChart } from "../components/MiniChart";
+// import { PercentageChange } from "../components/PercentageChange";
+// import { WatchlistCard } from "../components/WatchlistCard";
+// import { MarketNewsCard } from "../components/MarketNewsCard";
+// import { MarketCapTable } from "../components/MarketCapTable";
+// import { StockDetailModal } from "../components/StockDetailModal";
+import DeepCanvasAI from "../components/DeepCanvasAI";
+// import { TedsBrainDashboardTool } from "../components/TedsBrainDashboardTool";
 import { formatCurrency, formatMarketCap } from "../utils/formatters";
 
 export default function Dashboard() {
@@ -79,10 +79,10 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Ted's Brain Container - Moved up right after user profile */}
+          {/* DeepCanvas AI Container - Right after user profile */}
           <div className="grid grid-cols-12 gap-6 mb-8">
             <div className="col-span-12">
-              <TedsBrainContainer2 />
+              <DeepCanvasAI />
             </div>
           </div>
 

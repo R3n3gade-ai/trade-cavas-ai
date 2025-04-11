@@ -1,7 +1,8 @@
 import React, { Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import './index.css'
+import './styles/gemini-studio.css'
 
 // Import components
 import SimpleLanding from './simple-landing'
@@ -12,6 +13,8 @@ const Canvas = lazy(() => import('./pages/Canvas'))
 const Charts = lazy(() => import('./pages/Charts'))
 const Screeners = lazy(() => import('./pages/Screeners'))
 const Options = lazy(() => import('./pages/Options'))
+const Settings = lazy(() => import('./pages/Settings'))
+const TedAI = lazy(() => import('./pages/TedAI'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 // Loading component
@@ -46,7 +49,7 @@ const ErrorComponent = () => (
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <SimpleLanding />,
+    element: <Navigate to="/ted-ai" replace />,
     errorElement: <ErrorComponent />
   },
   {
@@ -90,6 +93,24 @@ const router = createBrowserRouter([
     element: (
       <Suspense fallback={<LoadingComponent />}>
         <Options />
+      </Suspense>
+    ),
+    errorElement: <ErrorComponent />
+  },
+  {
+    path: '/settings',
+    element: (
+      <Suspense fallback={<LoadingComponent />}>
+        <Settings />
+      </Suspense>
+    ),
+    errorElement: <ErrorComponent />
+  },
+  {
+    path: '/ted-ai',
+    element: (
+      <Suspense fallback={<LoadingComponent />}>
+        <TedAI />
       </Suspense>
     ),
     errorElement: <ErrorComponent />
