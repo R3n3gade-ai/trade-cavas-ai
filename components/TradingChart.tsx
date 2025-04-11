@@ -154,10 +154,10 @@ const TradingChart: React.FC<TradingChartProps> = ({
       });
 
       // Add technical indicators
-      chartRef.current.createTechnicalIndicator('MA', false, { id: 'candle_pane' });
-      chartRef.current.createTechnicalIndicator('VOLUME', true);
-      chartRef.current.createTechnicalIndicator('MACD', true);
-      chartRef.current.createTechnicalIndicator('RSI', true);
+      chartRef.current.createIndicator('MA');
+      chartRef.current.createIndicator('VOLUME', true);
+      chartRef.current.createIndicator('MACD', true);
+      chartRef.current.createIndicator('RSI', true);
 
       // Clean up on unmount
       return () => {
@@ -188,18 +188,18 @@ const TradingChart: React.FC<TradingChartProps> = ({
     const baseTimestamp = new Date().getTime() - 365 * 24 * 60 * 60 * 1000; // 1 year ago
     const sampleData = [];
     let price = 200;
-    
+
     for (let i = 0; i < 365; i++) {
       const timestamp = baseTimestamp + i * 24 * 60 * 60 * 1000;
       const randomChange = (Math.random() - 0.5) * 10;
       price += randomChange;
-      
+
       const open = price;
       const close = price + (Math.random() - 0.5) * 5;
       const high = Math.max(open, close) + Math.random() * 5;
       const low = Math.min(open, close) - Math.random() * 5;
       const volume = Math.floor(Math.random() * 10000) + 1000;
-      
+
       sampleData.push({
         timestamp,
         open,
@@ -209,7 +209,7 @@ const TradingChart: React.FC<TradingChartProps> = ({
         volume,
       });
     }
-    
+
     return sampleData;
   };
 
