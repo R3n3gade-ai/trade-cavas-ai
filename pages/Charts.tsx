@@ -745,37 +745,37 @@ const Charts: React.FC = () => {
   // Map drawing tool IDs to KLineChart overlay names
   const drawingToolToOverlayMap: Record<string, string> = {
     // Line tools
-    'line': 'segment',
+    'line': 'line',
     'ray': 'ray',
     'arrow': 'arrow',
-    'horizontal_line': 'horizontal_straight_line',
-    'horizontal_ray': 'horizontal_ray',
-    'vertical_line': 'vertical_straight_line',
-    'price_line': 'price_line',
+    'horizontal_line': 'horizontalLine',
+    'horizontal_ray': 'horizontalRay',
+    'vertical_line': 'verticalLine',
+    'price_line': 'priceLine',
 
     // Segment tools
     'segment': 'segment',
-    'parallel_line': 'parallel_line',
-    'price_channel': 'price_channel',
+    'parallel_line': 'parallelLine',
+    'price_channel': 'priceChannel',
 
     // Rectangle tools
     'rect': 'rect',
-    'parallel_channel': 'parallel_channel',
+    'parallel_channel': 'parallelChannel',
 
     // Circle tools
     'circle': 'circle',
     'arc': 'arc',
 
     // Fibonacci tools
-    'fibonacci_line': 'fibonacci_line',
-    'fibonacci_retracement': 'fibonacci_segment',
-    'fibonacci_extension': 'fibonacci_segment',
-    'fibonacci_circle': 'fibonacci_circle',
+    'fibonacci_line': 'fibonacciLine',
+    'fibonacci_retracement': 'fibonacciSegment',
+    'fibonacci_extension': 'fibonacciExtension',
+    'fibonacci_circle': 'fibonacciCircle',
 
     // Wave tools
-    'wave_principle': 'wave_principle',
-    'wave_five': 'wave_five',
-    'wave_three': 'wave_three',
+    'wave_principle': 'simpleWave',
+    'wave_five': 'waveTheory',
+    'wave_three': 'waveTheory',
 
     // Text tool
     'text': 'text',
@@ -794,32 +794,36 @@ const Charts: React.FC = () => {
       // Get the corresponding overlay name
       const overlayName = drawingToolToOverlayMap[toolId];
 
-      if (toolId === 'eraser') {
-        // Special case for eraser - enable erase mode
-        chartRef.current.createOverlay({
-          name: 'eraser',
-          mode: 'normal',
-        });
-        return;
-      }
+      try {
+        // First, cancel any existing drawing operation
+        chartRef.current.removeOverlay();
 
-      if (overlayName) {
-        try {
-          // Create the overlay with the appropriate name
+        if (toolId === 'eraser') {
+          // Special case for eraser - enable erase mode
+          chartRef.current.createOverlay({
+            name: 'eraser',
+            mode: 'normal',
+          });
+          return;
+        }
+
+        if (overlayName) {
+          // Enable drawing mode for the chart
           chartRef.current.createOverlay({
             name: overlayName,
-            points: [], // Points will be added by user interaction
             styles: {
               color: '#1E88E5',
               size: 1,
             },
-            mode: 'normal',
           });
-        } catch (error) {
-          console.error(`Error activating drawing tool ${toolId} (${overlayName}):`, error);
+
+          // Log success message
+          console.log(`Activated drawing tool: ${toolId} (${overlayName})`);
+        } else {
+          console.error(`No overlay mapping found for tool: ${toolId}`);
         }
-      } else {
-        console.error(`No overlay mapping found for tool: ${toolId}`);
+      } catch (error) {
+        console.error(`Error activating drawing tool ${toolId}:`, error);
       }
     }
   };
@@ -928,7 +932,7 @@ const Charts: React.FC = () => {
             {drawingToolCategories.map((category) => (
               <button
                 key={category.id}
-                className={`p-2 rounded ${activeDrawingToolCategory === category.id && showDrawingToolSubmenu ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+                className={`p-2 rounded ${activeDrawingToolCategory === category.id && showDrawingToolSubmenu ? 'bg-primary text-primary-foreground' : category.tools.some(tool => tool.id === selectedDrawingTool) ? 'bg-primary/20' : 'hover:bg-card/50'}`}
                 onClick={() => handleDrawingToolCategoryClick(category.id)}
               >
                 {category.icon}
@@ -959,6 +963,31 @@ const Charts: React.FC = () => {
                     </button>
                   ))
                 }
+
+                {/* Clear All Drawings Button */}
+                <div className="mt-2 pt-2 border-t border-white/10 px-3">
+                  <button
+                    className="w-full text-left px-3 py-1.5 text-xs hover:bg-card/80 flex items-center text-red-400"
+                    onClick={() => {
+                      if (chartRef.current) {
+                        chartRef.current.removeOverlay({ removeAll: true });
+                        setSelectedDrawingTool(null);
+                        setShowDrawingToolSubmenu(false);
+                      }
+                    }}
+                  >
+                    <span className="w-5 h-5 mr-2 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                      </svg>
+                    </span>
+                    Clear All Drawings
+                  </button>
+                </div>
               </div>
             )}
           </div>
