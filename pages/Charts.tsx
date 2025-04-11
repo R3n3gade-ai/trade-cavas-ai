@@ -224,12 +224,11 @@ const Charts: React.FC = () => {
       // Log available indicators for debugging
       console.log('Available indicators:', klinecharts.getSupportedIndicators());
 
-      // Log available technical indicator parameters
+      // Log available overlays
       try {
-        console.log('MA parameters:', klinecharts.getIndicatorParams('MA'));
-        console.log('VOL parameters:', klinecharts.getIndicatorParams('VOL'));
+        console.log('Available overlays:', klinecharts.getSupportedOverlays());
       } catch (error) {
-        console.error('Error getting indicator parameters:', error);
+        console.error('Error getting supported overlays:', error);
       }
       // Create chart instance with enhanced features
       chartRef.current = klinecharts.init(chartContainerRef.current, {
