@@ -221,8 +221,9 @@ const Charts: React.FC = () => {
   // Initialize chart when component mounts
   useEffect(() => {
     if (chartContainerRef.current && !chartRef.current) {
-      // Log available overlay types for debugging
-      console.log('Available overlay types:', klinecharts.getOverlayClass());
+      // Log available overlay types and indicators for debugging
+      console.log('Available overlay types:', Object.keys(klinecharts.getOverlayClass()));
+      console.log('Available indicators:', Object.keys(klinecharts.getIndicatorClass()));
       // Create chart instance with enhanced features
       chartRef.current = klinecharts.init(chartContainerRef.current, {
         theme: 'dark',
@@ -351,21 +352,31 @@ const Charts: React.FC = () => {
       initialIndicators.forEach(({ name, isNewPane }) => {
         const indicator = indicators.find(ind => ind.name === name);
         if (indicator) {
-          // Create the indicator on the chart
-          const paneId = chartRef.current.createIndicator(name, isNewPane);
+          try {
+            // Create the indicator on the chart with proper parameters
+            const paneId = chartRef.current.createIndicator({
+              name: indicator.name,
+              isNewPane,
+              params: indicator.params,
+            });
 
-          // Add to active indicators list
-          const id = `${name}_${Date.now()}`;
-          setActiveIndicators(prev => [
-            ...prev,
-            {
-              id,
-              name,
-              visible: true,
-              params: [...indicator.params], // Clone the params
-              paneId,
-            }
-          ]);
+            console.log(`Added initial indicator ${indicator.name} with paneId ${paneId}`);
+
+            // Add to active indicators list
+            const id = `${name}_${Date.now()}`;
+            setActiveIndicators(prev => [
+              ...prev,
+              {
+                id,
+                name,
+                visible: true,
+                params: [...indicator.params], // Clone the params
+                paneId,
+              }
+            ]);
+          } catch (error) {
+            console.error(`Error adding initial indicator ${indicator.name}:`, error);
+          }
         }
       });
 
@@ -433,20 +444,30 @@ const Charts: React.FC = () => {
         // Create a unique ID for this indicator instance
         const id = `${indicatorName}_${Date.now()}`;
 
-        // Create the indicator on the chart
-        const paneId = chartRef.current.createIndicator(indicator.name, isNewPane);
-
-        // Add to active indicators list
-        setActiveIndicators(prev => [
-          ...prev,
-          {
-            id,
+        try {
+          // Create the indicator on the chart with proper parameters
+          const paneId = chartRef.current.createIndicator({
             name: indicator.name,
-            visible: true,
-            params: [...indicator.params], // Clone the params
-            paneId,
-          }
-        ]);
+            isNewPane,
+            params: indicator.params,
+          });
+
+          console.log(`Added indicator ${indicator.name} with paneId ${paneId}`);
+
+          // Add to active indicators list
+          setActiveIndicators(prev => [
+            ...prev,
+            {
+              id,
+              name: indicator.name,
+              visible: true,
+              params: [...indicator.params], // Clone the params
+              paneId,
+            }
+          ]);
+        } catch (error) {
+          console.error(`Error adding indicator ${indicator.name}:`, error);
+        }
       }
     }
   };
@@ -475,13 +496,28 @@ const Charts: React.FC = () => {
             // Toggle visibility
             const newVisibility = !ind.visible;
 
-            // Update on chart
-            if (newVisibility) {
-              // Show indicator
-              chartRef.current.createIndicator(ind.name, ind.paneId ? true : false, { id: ind.paneId });
-            } else {
-              // Hide indicator
-              chartRef.current.removeIndicator(ind.name, ind.paneId);
+            try {
+              // Update on chart
+              if (newVisibility) {
+                // Show indicator
+                const indicator = indicators.find(i => i.name === ind.name);
+                if (indicator) {
+                  const isNewPane = indicator.series === 'indicator' || indicator.name === 'VOL';
+                  chartRef.current.createIndicator({
+                    name: ind.name,
+                    isNewPane,
+                    params: ind.params,
+                    paneId: ind.paneId,
+                  });
+                }
+              } else {
+                // Hide indicator
+                chartRef.current.removeIndicator(ind.name, ind.paneId);
+              }
+
+              console.log(`Toggled indicator ${ind.name} visibility to ${newVisibility}`);
+            } catch (error) {
+              console.error(`Error toggling indicator ${ind.name} visibility:`, error);
             }
 
             return { ...ind, visible: newVisibility };
@@ -502,14 +538,27 @@ const Charts: React.FC = () => {
             // Update params
             const updatedInd = { ...ind, params: newParams };
 
-            // Update on chart
-            if (ind.visible) {
-              // Remove and recreate with new params
-              chartRef.current.removeIndicator(ind.name, ind.paneId);
-              chartRef.current.createIndicator(ind.name, ind.paneId ? true : false, {
-                id: ind.paneId,
-                params: newParams,
-              });
+            try {
+              // Update on chart
+              if (ind.visible) {
+                // Remove and recreate with new params
+                chartRef.current.removeIndicator(ind.name, ind.paneId);
+
+                const indicator = indicators.find(i => i.name === ind.name);
+                if (indicator) {
+                  const isNewPane = indicator.series === 'indicator' || indicator.name === 'VOL';
+                  chartRef.current.createIndicator({
+                    name: ind.name,
+                    isNewPane,
+                    params: newParams,
+                    paneId: ind.paneId,
+                  });
+                }
+
+                console.log(`Updated indicator ${ind.name} parameters to ${newParams.join(', ')}`);
+              }
+            } catch (error) {
+              console.error(`Error updating indicator ${ind.name} parameters:`, error);
             }
 
             return updatedInd;
