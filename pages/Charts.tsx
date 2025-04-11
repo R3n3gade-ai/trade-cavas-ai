@@ -797,29 +797,27 @@ const Charts: React.FC = () => {
         // First, cancel any existing drawing operation
         chartRef.current.removeOverlay();
 
+        // Log available overlay types for debugging
+        console.log('Available overlay types:', Object.keys(klinecharts.getOverlayClass()));
+
         // Special cases for different tools
         switch (toolId) {
+          // Line tools
           case 'line':
             chartRef.current.createOverlay({
-              name: 'segment',
+              name: 'straightLine',
               styles: { color: '#1E88E5', size: 1 },
             });
             break;
           case 'ray':
             chartRef.current.createOverlay({
-              name: 'ray',
-              styles: { color: '#1E88E5', size: 1 },
-            });
-            break;
-          case 'segment':
-            chartRef.current.createOverlay({
-              name: 'segment',
+              name: 'rayLine',
               styles: { color: '#1E88E5', size: 1 },
             });
             break;
           case 'arrow':
             chartRef.current.createOverlay({
-              name: 'arrow',
+              name: 'arrowLine',
               styles: { color: '#1E88E5', size: 1 },
             });
             break;
@@ -829,42 +827,137 @@ const Charts: React.FC = () => {
               styles: { color: '#1E88E5', size: 1 },
             });
             break;
+          case 'horizontal_ray':
+            chartRef.current.createOverlay({
+              name: 'horizontalRayLine',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
           case 'vertical_line':
             chartRef.current.createOverlay({
               name: 'verticalStraightLine',
               styles: { color: '#1E88E5', size: 1 },
             });
             break;
-          case 'rect':
+          case 'price_line':
             chartRef.current.createOverlay({
-              name: 'rect',
+              name: 'priceLine',
               styles: { color: '#1E88E5', size: 1 },
             });
             break;
+
+          // Segment tools
+          case 'segment':
+            chartRef.current.createOverlay({
+              name: 'segment',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'parallel_line':
+            chartRef.current.createOverlay({
+              name: 'parallelStraightLine',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'price_channel':
+            chartRef.current.createOverlay({
+              name: 'priceChannelLine',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+
+          // Rectangle tools
+          case 'rect':
+            chartRef.current.createOverlay({
+              name: 'simpleRect',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'parallel_channel':
+            chartRef.current.createOverlay({
+              name: 'parallelChannel',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+
+          // Circle tools
           case 'circle':
             chartRef.current.createOverlay({
               name: 'circle',
               styles: { color: '#1E88E5', size: 1 },
             });
             break;
-          case 'text':
+          case 'arc':
             chartRef.current.createOverlay({
-              name: 'text',
-              styles: { color: '#1E88E5', size: 14 },
-              extendData: 'Text',
+              name: 'arc',
+              styles: { color: '#1E88E5', size: 1 },
             });
             break;
-          case 'fibonacci_retracement':
+
+          // Fibonacci tools
+          case 'fibonacci_line':
             chartRef.current.createOverlay({
               name: 'fibonacciLine',
               styles: { color: '#1E88E5', size: 1 },
             });
             break;
+          case 'fibonacci_retracement':
+            chartRef.current.createOverlay({
+              name: 'fibonacciSegment',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'fibonacci_extension':
+            chartRef.current.createOverlay({
+              name: 'fibonacciExtension',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'fibonacci_circle':
+            chartRef.current.createOverlay({
+              name: 'fibonacciCircle',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+
+          // Wave tools
+          case 'wave_principle':
+            chartRef.current.createOverlay({
+              name: 'simpleWave',
+              styles: { color: '#1E88E5', size: 1 },
+            });
+            break;
+          case 'wave_five':
+            chartRef.current.createOverlay({
+              name: 'waveTheory',
+              styles: { color: '#1E88E5', size: 1 },
+              extendData: { waves: 5 },
+            });
+            break;
+          case 'wave_three':
+            chartRef.current.createOverlay({
+              name: 'waveTheory',
+              styles: { color: '#1E88E5', size: 1 },
+              extendData: { waves: 3 },
+            });
+            break;
+
+          // Text tool
+          case 'text':
+            chartRef.current.createOverlay({
+              name: 'simpleText',
+              styles: { color: '#1E88E5', size: 14 },
+              extendData: 'Text',
+            });
+            break;
+
+          // Eraser tool
           case 'eraser':
             chartRef.current.createOverlay({
               name: 'eraser',
             });
             break;
+
           default:
             // For any other tool, try to use the segment as fallback
             chartRef.current.createOverlay({
