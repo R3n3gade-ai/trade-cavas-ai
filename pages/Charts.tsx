@@ -222,8 +222,20 @@ const Charts: React.FC = () => {
   useEffect(() => {
     if (chartContainerRef.current && !chartRef.current) {
       // Log available overlay types and indicators for debugging
-      console.log('Available overlay types:', Object.keys(klinecharts.getOverlayClass()));
-      console.log('Available indicators:', Object.keys(klinecharts.getIndicatorClass()));
+      const overlayClass = klinecharts.getOverlayClass();
+      const indicatorClass = klinecharts.getIndicatorClass();
+
+      if (overlayClass) {
+        console.log('Available overlay types:', Object.keys(overlayClass));
+      } else {
+        console.log('Overlay class not available');
+      }
+
+      if (indicatorClass) {
+        console.log('Available indicators:', Object.keys(indicatorClass));
+      } else {
+        console.log('Indicator class not available');
+      }
       // Create chart instance with enhanced features
       chartRef.current = klinecharts.init(chartContainerRef.current, {
         theme: 'dark',
@@ -847,7 +859,12 @@ const Charts: React.FC = () => {
         chartRef.current.removeOverlay();
 
         // Log available overlay types for debugging
-        console.log('Available overlay types:', Object.keys(klinecharts.getOverlayClass()));
+        const overlayClass = klinecharts.getOverlayClass();
+        if (overlayClass) {
+          console.log('Available overlay types:', Object.keys(overlayClass));
+        } else {
+          console.log('Overlay class not available');
+        }
 
         // Special cases for different tools
         switch (toolId) {
