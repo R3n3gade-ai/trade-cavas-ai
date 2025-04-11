@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../components/DashboardLayout';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { Search, Calendar, Filter, Download, RefreshCw } from 'lucide-react';
+import TradingChart from '../components/TradingChart';
+import { Search, Calendar, Filter, Download, RefreshCw, Settings, Maximize2 } from 'lucide-react';
 
 // Mock data for charts
 const mockData = [
@@ -101,89 +101,40 @@ const Charts: React.FC = () => {
             </div>
           </div>
           <div className="h-96">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={mockData}>
-                <defs>
-                  <linearGradient id="colorSymbol" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="date" />
-                <YAxis domain={['auto', 'auto']} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#1e1e1e',
-                    borderColor: '#333',
-                    color: '#fff'
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey={selectedSymbol}
-                  stroke="#8884d8"
-                  fillOpacity={1}
-                  fill="url(#colorSymbol)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <TradingChart
+              symbol={selectedSymbol}
+              interval={timeframe}
+              theme="dark"
+              height={384} // h-96 = 24rem = 384px
+              width="100%"
+            />
           </div>
         </div>
 
-        {/* Comparison Charts */}
+        {/* Additional Charts */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-card p-4 rounded-lg shadow-sm border border-white/10">
-            <h3 className="text-lg font-medium mb-2">Volume</h3>
+            <h3 className="text-lg font-medium mb-2">Volume Analysis</h3>
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={mockData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#1e1e1e',
-                      borderColor: '#333',
-                      color: '#fff'
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey={selectedSymbol}
-                    stroke="#82ca9d"
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <TradingChart
+                symbol={selectedSymbol}
+                interval={timeframe}
+                theme="dark"
+                height={256} // h-64 = 16rem = 256px
+                width="100%"
+              />
             </div>
           </div>
           <div className="bg-card p-4 rounded-lg shadow-sm border border-white/10">
-            <h3 className="text-lg font-medium mb-2">Comparison</h3>
+            <h3 className="text-lg font-medium mb-2">Technical Indicators</h3>
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={mockData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#1e1e1e',
-                      borderColor: '#333',
-                      color: '#fff'
-                    }}
-                  />
-                  {symbols.map((symbol, index) => (
-                    <Line
-                      key={symbol}
-                      type="monotone"
-                      dataKey={symbol}
-                      stroke={['#8884d8', '#82ca9d', '#ffc658', '#ff8042'][index]}
-                      dot={false}
-                    />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
+              <TradingChart
+                symbol={symbols.filter(s => s !== selectedSymbol)[0]}
+                interval={timeframe}
+                theme="dark"
+                height={256} // h-64 = 16rem = 256px
+                width="100%"
+              />
             </div>
           </div>
         </div>
