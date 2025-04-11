@@ -561,6 +561,229 @@ const Charts: React.FC = () => {
     }
   };
 
+  // Function to get the icon for a specific drawing tool
+  const getToolIcon = (toolId: string) => {
+    switch (toolId) {
+      // Line tools
+      case 'line':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14"></path>
+          </svg>
+        );
+      case 'ray':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 3l18 18"></path>
+          </svg>
+        );
+      case 'arrow':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        );
+      case 'horizontal_line':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12h18"></path>
+          </svg>
+        );
+      case 'horizontal_ray':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12h18"></path>
+            <path d="M21 12v6"></path>
+          </svg>
+        );
+      case 'vertical_line':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3v18"></path>
+          </svg>
+        );
+      case 'price_line':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12h18"></path>
+            <path d="M21 8v8"></path>
+          </svg>
+        );
+
+      // Segment tools
+      case 'segment':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 3l6 6"></path>
+            <path d="M15 15l6 6"></path>
+          </svg>
+        );
+      case 'parallel_line':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 8L19 8"></path>
+            <path d="M5 16L19 16"></path>
+          </svg>
+        );
+      case 'price_channel':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 7l14 4"></path>
+            <path d="M5 17l14-6"></path>
+          </svg>
+        );
+
+      // Rectangle tools
+      case 'rect':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          </svg>
+        );
+      case 'parallel_channel':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 6l18 12"></path>
+            <path d="M3 18l18-12"></path>
+          </svg>
+        );
+
+      // Circle tools
+      case 'circle':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+          </svg>
+        );
+      case 'arc':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12a9 9 0 1 0 18 0"></path>
+          </svg>
+        );
+
+      // Fibonacci tools
+      case 'fibonacci_line':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 3v18h18"></path>
+            <path d="m3 9 18-6"></path>
+          </svg>
+        );
+      case 'fibonacci_retracement':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 3v18h18"></path>
+            <path d="M3 9h18"></path>
+            <path d="M3 15h18"></path>
+          </svg>
+        );
+      case 'fibonacci_extension':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 3v18h18"></path>
+            <path d="M3 9h18"></path>
+            <path d="M3 15h18"></path>
+            <path d="M3 21h18"></path>
+          </svg>
+        );
+      case 'fibonacci_circle':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <circle cx="12" cy="12" r="6"></circle>
+            <circle cx="12" cy="12" r="9"></circle>
+          </svg>
+        );
+
+      // Wave tools
+      case 'wave_principle':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 12s1.5-4 5-4 5 4 9 4 5-4 5-4"></path>
+          </svg>
+        );
+      case 'wave_five':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 12s1-4 4-4 6 8 10 8 6-12 6-12"></path>
+          </svg>
+        );
+      case 'wave_three':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 12s1-6 5-6 5 12 10 12 5-18 5-18"></path>
+          </svg>
+        );
+
+      // Text tool
+      case 'text':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 7V4h16v3"></path>
+            <path d="M9 20h6"></path>
+            <path d="M12 4v16"></path>
+          </svg>
+        );
+
+      // Eraser tool
+      case 'eraser':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path>
+            <path d="M22 21H7"></path>
+            <path d="m5 11 9 9"></path>
+          </svg>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  // Map drawing tool IDs to KLineChart overlay names
+  const drawingToolToOverlayMap: Record<string, string> = {
+    // Line tools
+    'line': 'segment',
+    'ray': 'ray',
+    'arrow': 'arrow',
+    'horizontal_line': 'horizontal_straight_line',
+    'horizontal_ray': 'horizontal_ray',
+    'vertical_line': 'vertical_straight_line',
+    'price_line': 'price_line',
+
+    // Segment tools
+    'segment': 'segment',
+    'parallel_line': 'parallel_line',
+    'price_channel': 'price_channel',
+
+    // Rectangle tools
+    'rect': 'rect',
+    'parallel_channel': 'parallel_channel',
+
+    // Circle tools
+    'circle': 'circle',
+    'arc': 'arc',
+
+    // Fibonacci tools
+    'fibonacci_line': 'fibonacci_line',
+    'fibonacci_retracement': 'fibonacci_segment',
+    'fibonacci_extension': 'fibonacci_segment',
+    'fibonacci_circle': 'fibonacci_circle',
+
+    // Wave tools
+    'wave_principle': 'wave_principle',
+    'wave_five': 'wave_five',
+    'wave_three': 'wave_three',
+
+    // Text tool
+    'text': 'text',
+
+    // Eraser tool (special case)
+    'eraser': 'eraser',
+  };
+
   // Handle selecting a specific drawing tool
   const handleSelectDrawingTool = (toolId: string) => {
     if (chartRef.current) {
@@ -568,23 +791,35 @@ const Charts: React.FC = () => {
       setSelectedDrawingTool(toolId);
       setShowDrawingToolSubmenu(false);
 
-      // In a real implementation, you would activate the drawing tool on the chart
-      console.log(`Selected drawing tool: ${toolId}`);
+      // Get the corresponding overlay name
+      const overlayName = drawingToolToOverlayMap[toolId];
 
-      // For demonstration purposes, let's simulate activating the drawing tool
-      try {
-        // This is a simplified example - in a real implementation, you would use the proper API
-        // to activate the drawing tool based on its type
+      if (toolId === 'eraser') {
+        // Special case for eraser - enable erase mode
         chartRef.current.createOverlay({
-          name: toolId,
-          points: [], // Points will be added by user interaction
-          styles: {
-            color: '#1E88E5',
-            size: 1,
-          },
+          name: 'eraser',
+          mode: 'normal',
         });
-      } catch (error) {
-        console.error('Error activating drawing tool:', error);
+        return;
+      }
+
+      if (overlayName) {
+        try {
+          // Create the overlay with the appropriate name
+          chartRef.current.createOverlay({
+            name: overlayName,
+            points: [], // Points will be added by user interaction
+            styles: {
+              color: '#1E88E5',
+              size: 1,
+            },
+            mode: 'normal',
+          });
+        } catch (error) {
+          console.error(`Error activating drawing tool ${toolId} (${overlayName}):`, error);
+        }
+      } else {
+        console.error(`No overlay mapping found for tool: ${toolId}`);
       }
     }
   };
@@ -714,9 +949,12 @@ const Charts: React.FC = () => {
                   ?.tools.map(tool => (
                     <button
                       key={tool.id}
-                      className={`w-full text-left px-3 py-1.5 text-xs ${selectedDrawingTool === tool.id ? 'bg-primary/20' : 'hover:bg-card/80'}`}
+                      className={`w-full text-left px-3 py-1.5 text-xs ${selectedDrawingTool === tool.id ? 'bg-primary/20' : 'hover:bg-card/80'} flex items-center`}
                       onClick={() => handleSelectDrawingTool(tool.id)}
                     >
+                      <span className="w-5 h-5 mr-2 flex items-center justify-center">
+                        {getToolIcon(tool.id)}
+                      </span>
                       {tool.name}
                     </button>
                   ))
