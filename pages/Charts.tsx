@@ -221,20 +221,15 @@ const Charts: React.FC = () => {
   // Initialize chart when component mounts
   useEffect(() => {
     if (chartContainerRef.current && !chartRef.current) {
-      // Log available overlay types and indicators for debugging
-      const overlayClass = klinecharts.getOverlayClass();
-      const indicatorClass = klinecharts.getIndicatorClass();
+      // Log available indicators for debugging
+      console.log('Available indicators:', klinecharts.getSupportedIndicators());
 
-      if (overlayClass) {
-        console.log('Available overlay types:', Object.keys(overlayClass));
-      } else {
-        console.log('Overlay class not available');
-      }
-
-      if (indicatorClass) {
-        console.log('Available indicators:', Object.keys(indicatorClass));
-      } else {
-        console.log('Indicator class not available');
+      // Log available technical indicator parameters
+      try {
+        console.log('MA parameters:', klinecharts.getIndicatorParams('MA'));
+        console.log('VOL parameters:', klinecharts.getIndicatorParams('VOL'));
+      } catch (error) {
+        console.error('Error getting indicator parameters:', error);
       }
       // Create chart instance with enhanced features
       chartRef.current = klinecharts.init(chartContainerRef.current, {
@@ -859,11 +854,10 @@ const Charts: React.FC = () => {
         chartRef.current.removeOverlay();
 
         // Log available overlay types for debugging
-        const overlayClass = klinecharts.getOverlayClass();
-        if (overlayClass) {
-          console.log('Available overlay types:', Object.keys(overlayClass));
-        } else {
-          console.log('Overlay class not available');
+        try {
+          console.log('Available overlay types:', klinecharts.getSupportedOverlays());
+        } catch (error) {
+          console.error('Error getting supported overlays:', error);
         }
 
         // Special cases for different tools
