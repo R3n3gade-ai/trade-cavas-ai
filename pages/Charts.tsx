@@ -66,7 +66,17 @@ const Charts: React.FC = () => {
 
       // Add initial indicators
       chartState.indicators.forEach(indicator => {
-        chartRef.current.createIndicator(indicator);
+        // Create indicators with proper pane placement
+        if (indicator === 'VOL') {
+          // Volume is typically in a separate pane
+          chartRef.current.createIndicator(indicator, true);
+        } else if (['MACD', 'RSI', 'KDJ', 'BOLL', 'WR'].includes(indicator)) {
+          // These indicators are typically in separate panes
+          chartRef.current.createIndicator(indicator, true);
+        } else {
+          // Other indicators like MA are typically overlaid on the main chart
+          chartRef.current.createIndicator(indicator, false);
+        }
       });
 
       // Add crosshair move event listener to update OHLCV info
@@ -115,7 +125,14 @@ const Charts: React.FC = () => {
   // Handle adding a new indicator
   const addIndicator = (indicatorType: string) => {
     if (chartRef.current && !chartState.indicators.includes(indicatorType)) {
-      chartRef.current.createIndicator(indicatorType);
+      // Determine if indicator should be in a separate pane
+      const isNewPane = indicatorType === 'VOL' ||
+                        ['MACD', 'RSI', 'KDJ', 'BOLL', 'WR'].includes(indicatorType);
+
+      // Create the indicator
+      chartRef.current.createIndicator(indicatorType, isNewPane);
+
+      // Update state
       setChartState(prev => ({
         ...prev,
         indicators: [...prev.indicators, indicatorType]
@@ -216,6 +233,46 @@ const Charts: React.FC = () => {
                   {interval}
                 </button>
               ))}
+            </div>
+
+            {/* Indicators Button with Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                className="px-2 py-1 text-xs rounded bg-card/50 hover:bg-card border border-white/10 flex items-center"
+                onClick={() => setShowIndicatorDropdown(!showIndicatorDropdown)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="mr-1" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 12h6"></path>
+                  <path d="M22 12h-6"></path>
+                  <path d="M12 2v2"></path>
+                  <path d="M12 8v2"></path>
+                  <path d="M12 14v2"></path>
+                  <path d="M12 20v2"></path>
+                  <path d="M18 8v8"></path>
+                  <path d="M6 8v8"></path>
+                </svg>
+                Indicators
+              </button>
+
+              {/* Indicator Dropdown */}
+              {showIndicatorDropdown && (
+                <div className="absolute top-full mt-1 left-0 w-48 bg-card border border-white/10 rounded-md shadow-lg py-1 z-10">
+                  {['BOLL', 'RSI', 'MACD', 'KDJ', 'VOL', 'MA', 'EMA', 'BIAS', 'BRAR', 'CCI', 'DMI', 'CR', 'PSY', 'DMA', 'TRIX', 'OBV', 'VR', 'WR', 'MTM', 'EMV', 'SAR', 'AO', 'ROC', 'PVT', 'AVP']
+                    .filter(ind => !chartState.indicators.includes(ind))
+                    .map(indicator => (
+                      <button
+                        key={indicator}
+                        className="w-full text-left px-3 py-1.5 text-xs hover:bg-card/80"
+                        onClick={() => {
+                          addIndicator(indicator);
+                          setShowIndicatorDropdown(false);
+                        }}
+                      >
+                        {indicator}
+                      </button>
+                    ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -342,175 +399,7 @@ const Charts: React.FC = () => {
           {/* Chart */}
           <div className="flex-1" ref={chartContainerRef}></div>
 
-          {/* Right Sidebar with Indicator Controls */}
-          <div className="w-64 border-l border-white/10 p-4 overflow-y-auto">
-            <h3 className="text-sm font-semibold mb-4">Indicators</h3>
-
-            {/* Indicator List */}
-            <div className="space-y-3">
-              {/* MA Indicator */}
-              <div className="p-2 bg-card/50 border border-white/10 rounded-md">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="font-medium text-sm">Moving Average</div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      className="p-1 rounded hover:bg-card/80"
-                      onClick={() => {
-                        // Toggle indicator visibility
-                        if (chartRef.current) {
-                          // In a real implementation, you would toggle visibility
-                        }
-                      }}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </button>
-                    <button
-                      className="p-1 rounded hover:bg-card/80"
-                      onClick={() => removeIndicator('MA')}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M18 6 6 18"></path>
-                        <path d="m6 6 12 12"></path>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 text-xs">
-                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                  <div>MA(5)</div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <div>MA(10)</div>
-                  <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                  <div>MA(30)</div>
-                </div>
-              </div>
-
-              {/* MACD Indicator */}
-              <div className="p-2 bg-card/50 border border-white/10 rounded-md">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="font-medium text-sm">MACD</div>
-                  <div className="flex items-center space-x-2">
-                    <button className="p-1 rounded hover:bg-card/80">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </button>
-                    <button
-                      className="p-1 rounded hover:bg-card/80"
-                      onClick={() => removeIndicator('MACD')}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M18 6 6 18"></path>
-                        <path d="m6 6 12 12"></path>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 text-xs">
-                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                  <div>DIF(12,26)</div>
-                  <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                  <div>DEA(9)</div>
-                </div>
-              </div>
-
-              {/* RSI Indicator */}
-              <div className="p-2 bg-card/50 border border-white/10 rounded-md">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="font-medium text-sm">RSI</div>
-                  <div className="flex items-center space-x-2">
-                    <button className="p-1 rounded hover:bg-card/80">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </button>
-                    <button
-                      className="p-1 rounded hover:bg-card/80"
-                      onClick={() => removeIndicator('RSI')}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M18 6 6 18"></path>
-                        <path d="m6 6 12 12"></path>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 text-xs">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <div>RSI(14)</div>
-                </div>
-              </div>
-
-              {/* Volume Indicator */}
-              <div className="p-2 bg-card/50 border border-white/10 rounded-md">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="font-medium text-sm">Volume</div>
-                  <div className="flex items-center space-x-2">
-                    <button className="p-1 rounded hover:bg-card/80">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </button>
-                    <button
-                      className="p-1 rounded hover:bg-card/80"
-                      onClick={() => removeIndicator('VOL')}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M18 6 6 18"></path>
-                        <path d="m6 6 12 12"></path>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 text-xs">
-                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                  <div>VOL</div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <div>MA(5)</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Add Indicator Button and Dropdown */}
-            <div className="relative mt-4" ref={dropdownRef}>
-              <button
-                className="w-full p-2 bg-primary text-primary-foreground rounded-md text-sm flex items-center justify-center"
-                onClick={() => setShowIndicatorDropdown(!showIndicatorDropdown)}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="mr-1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14"></path>
-                  <path d="M12 5v14"></path>
-                </svg>
-                Add Indicator
-              </button>
-
-              {/* Indicator Dropdown */}
-              {showIndicatorDropdown && (
-                <div className="absolute bottom-full mb-1 left-0 w-full bg-card border border-white/10 rounded-md shadow-lg py-1 z-10">
-                  {['BOLL', 'RSI', 'MACD', 'KDJ', 'VOL', 'MA', 'EMA', 'BIAS', 'BRAR', 'CCI', 'DMI', 'CR', 'PSY', 'DMA', 'TRIX', 'OBV', 'VR', 'WR', 'MTM', 'EMV', 'SAR', 'AO', 'ROC', 'PVT', 'AVP']
-                    .filter(ind => !chartState.indicators.includes(ind))
-                    .map(indicator => (
-                      <button
-                        key={indicator}
-                        className="w-full text-left px-3 py-1.5 text-sm hover:bg-card/80"
-                        onClick={() => {
-                          addIndicator(indicator);
-                          setShowIndicatorDropdown(false);
-                        }}
-                      >
-                        {indicator}
-                      </button>
-                    ))}
-                </div>
-              )}
-            </div>
-          </div>
+          {/* No right sidebar - indicators are displayed directly on the chart */}
         </div>
 
         {/* Bottom Toolbar */}
