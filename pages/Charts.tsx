@@ -30,6 +30,16 @@ const Charts: React.FC = () => {
   const [showIndicatorSettings, setShowIndicatorSettings] = useState<string | null>(null);
   const indicatorSettingsRef = useRef<HTMLDivElement>(null);
 
+  // OHLCV info state
+  const [ohlcvInfo, setOhlcvInfo] = useState<{
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+    timestamp: number;
+  } | null>(null);
+
   // Available periods
   const periods = [
     { text: '1m', value: '1m' },
@@ -211,7 +221,7 @@ const Charts: React.FC = () => {
   // Initialize chart when component mounts
   useEffect(() => {
     if (chartContainerRef.current && !chartRef.current) {
-      // Create chart instance
+      // Create chart instance with enhanced features
       chartRef.current = klinecharts.init(chartContainerRef.current, {
         theme: 'dark',
         grid: {
@@ -236,6 +246,93 @@ const Charts: React.FC = () => {
             downColor: '#EF5350',
             noChangeColor: '#888888',
           },
+        },
+        technicalIndicator: {
+          bar: {
+            upColor: '#26A69A',
+            downColor: '#EF5350',
+            noChangeColor: '#888888',
+          },
+          line: {
+            size: 1,
+          },
+        },
+        crosshair: {
+          show: true,
+          horizontal: {
+            show: true,
+            line: {
+              show: true,
+              style: 'dashed',
+              dashedValue: [4, 2],
+              size: 1,
+              color: 'rgba(255, 255, 255, 0.3)',
+            },
+            text: {
+              show: true,
+              color: '#FFFFFF',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              borderRadius: 2,
+              padding: [4, 6],
+              fontSize: 12,
+            },
+          },
+          vertical: {
+            show: true,
+            line: {
+              show: true,
+              style: 'dashed',
+              dashedValue: [4, 2],
+              size: 1,
+              color: 'rgba(255, 255, 255, 0.3)',
+            },
+            text: {
+              show: true,
+              color: '#FFFFFF',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              borderRadius: 2,
+              padding: [4, 6],
+              fontSize: 12,
+            },
+          },
+        },
+        yAxis: {
+          show: true,
+          position: 'right',
+          type: 'normal',
+          inside: false,
+          reverse: false,
+          tickText: {
+            show: true,
+            color: 'rgba(255, 255, 255, 0.7)',
+            fontSize: 12,
+            paddingRight: 4,
+          },
+          axisLine: {
+            show: true,
+            color: 'rgba(255, 255, 255, 0.2)',
+            size: 1,
+          },
+        },
+        xAxis: {
+          show: true,
+          tickText: {
+            show: true,
+            color: 'rgba(255, 255, 255, 0.7)',
+            fontSize: 12,
+            paddingTop: 4,
+          },
+          axisLine: {
+            show: true,
+            color: 'rgba(255, 255, 255, 0.2)',
+            size: 1,
+          },
+        },
+        separator: {
+          size: 1,
+          color: 'rgba(255, 255, 255, 0.2)',
+          fill: true,
+          activeBackgroundColor: 'rgba(230, 230, 230, 0.15)',
         },
       });
 
@@ -274,8 +371,20 @@ const Charts: React.FC = () => {
       chartRef.current.subscribeAction('crosshair', ({ kLineData }) => {
         if (kLineData) {
           const { timestamp, open, high, low, close, volume } = kLineData;
-          console.log(`O: ${open.toFixed(2)} H: ${high.toFixed(2)} L: ${low.toFixed(2)} C: ${close.toFixed(2)} V: ${volume.toFixed(0)}`);
+          setOhlcvInfo({ timestamp, open, high, low, close, volume });
+        } else {
+          setOhlcvInfo(null);
         }
+      });
+
+      // Add zoom event listener
+      chartRef.current.subscribeAction('zoom', ({ scale }) => {
+        console.log(`Zoom scale: ${scale}`);
+      });
+
+      // Add pane drag event listener
+      chartRef.current.subscribeAction('pane_drag', ({ paneId, dragStartY, dragEndY }) => {
+        console.log(`Pane drag: ${paneId}, ${dragStartY} -> ${dragEndY}`);
       });
     }
 
@@ -767,7 +876,80 @@ const Charts: React.FC = () => {
                   <path d="m3 15 5-5 4 4 5-5 4 4"></path>
                 </svg>
               </button>
+
+              {/* OHLC Chart */}
+              <button
+                className="p-1.5 rounded hover:bg-card/50"
+                onClick={() => handleChangeChartType('ohlc')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="20" x2="12" y2="10"></line>
+                  <line x1="18" y1="20" x2="18" y2="4"></line>
+                  <line x1="6" y1="20" x2="6" y2="16"></line>
+                </svg>
+              </button>
+
+              {/* Area Chart */}
+              <button
+                className="p-1.5 rounded hover:bg-card/50"
+                onClick={() => handleChangeChartType('area')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 3v18h18"></path>
+                  <path d="M3 18s3-6 7-6 5 4 9 4 5-4 5-4"></path>
+                </svg>
+              </button>
             </div>
+
+            {/* Divider */}
+            <div className="h-6 w-px bg-white/10"></div>
+
+            {/* Zoom Controls */}
+            <div className="flex items-center space-x-1">
+              <button
+                className="p-1.5 rounded hover:bg-card/50"
+                onClick={() => {
+                  if (chartRef.current) {
+                    chartRef.current.zoom(0.5);
+                  }
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  <path d="M15 10h-6"></path>
+                </svg>
+              </button>
+              <button
+                className="p-1.5 rounded hover:bg-card/50"
+                onClick={() => {
+                  if (chartRef.current) {
+                    chartRef.current.zoom(2);
+                  }
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  <path d="M12 7v6"></path>
+                  <path d="M9 10h6"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* OHLCV Info */}
+          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+            {ohlcvInfo ? (
+              <>
+                <span className="font-medium">O: {ohlcvInfo.open.toFixed(2)}</span>
+                <span className="font-medium">H: {ohlcvInfo.high.toFixed(2)}</span>
+                <span className="font-medium">L: {ohlcvInfo.low.toFixed(2)}</span>
+                <span className="font-medium">C: {ohlcvInfo.close.toFixed(2)}</span>
+                <span className="font-medium">V: {ohlcvInfo.volume.toFixed(0)}</span>
+                <span className="font-medium">{new Date(ohlcvInfo.timestamp).toLocaleTimeString()}</span>
+              </>
+            ) : (
+              <span>Hover over chart to see OHLCV data</span>
+            )}
           </div>
         </div>
       </div>
