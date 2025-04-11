@@ -19,6 +19,17 @@ const Charts: React.FC = () => {
   const [showDrawingToolSubmenu, setShowDrawingToolSubmenu] = useState(false);
   const drawingToolSubmenuRef = useRef<HTMLDivElement>(null);
 
+  // Indicator state
+  const [activeIndicators, setActiveIndicators] = useState<Array<{
+    id: string;
+    name: string;
+    visible: boolean;
+    params: number[];
+    paneId?: string;
+  }>>([]);
+  const [showIndicatorSettings, setShowIndicatorSettings] = useState<string | null>(null);
+  const indicatorSettingsRef = useRef<HTMLDivElement>(null);
+
   // Available periods
   const periods = [
     { text: '1m', value: '1m' },
@@ -233,10 +244,29 @@ const Charts: React.FC = () => {
       chartRef.current.applyNewData(sampleData);
 
       // Add initial indicators
-      indicators.forEach(indicator => {
-        const isNewPane = indicator.series === 'indicator' || indicator.name === 'VOL';
-        if (indicator.name === 'MA' || indicator.name === 'VOL') {
-          chartRef.current.createIndicator(indicator.name, isNewPane);
+      const initialIndicators = [
+        { name: 'MA', isNewPane: false },
+        { name: 'VOL', isNewPane: true },
+      ];
+
+      initialIndicators.forEach(({ name, isNewPane }) => {
+        const indicator = indicators.find(ind => ind.name === name);
+        if (indicator) {
+          // Create the indicator on the chart
+          const paneId = chartRef.current.createIndicator(name, isNewPane);
+
+          // Add to active indicators list
+          const id = `${name}_${Date.now()}`;
+          setActiveIndicators(prev => [
+            ...prev,
+            {
+              id,
+              name,
+              visible: true,
+              params: [...indicator.params], // Clone the params
+              paneId,
+            }
+          ]);
         }
       });
 
@@ -288,17 +318,116 @@ const Charts: React.FC = () => {
       const indicator = indicators.find(ind => ind.name === indicatorName);
       if (indicator) {
         const isNewPane = indicator.series === 'indicator' || indicator.name === 'VOL';
-        chartRef.current.createIndicator(indicator.name, isNewPane);
+
+        // Create a unique ID for this indicator instance
+        const id = `${indicatorName}_${Date.now()}`;
+
+        // Create the indicator on the chart
+        const paneId = chartRef.current.createIndicator(indicator.name, isNewPane);
+
+        // Add to active indicators list
+        setActiveIndicators(prev => [
+          ...prev,
+          {
+            id,
+            name: indicator.name,
+            visible: true,
+            params: [...indicator.params], // Clone the params
+            paneId,
+          }
+        ]);
       }
     }
   };
 
   // Handle removing an indicator
-  const handleRemoveIndicator = (indicatorName: string) => {
+  const handleRemoveIndicator = (indicatorId: string) => {
     if (chartRef.current) {
-      chartRef.current.removeIndicator(indicatorName);
+      // Find the indicator in our active list
+      const indicator = activeIndicators.find(ind => ind.id === indicatorId);
+      if (indicator) {
+        // Remove from chart
+        chartRef.current.removeIndicator(indicator.name, indicator.paneId);
+
+        // Remove from active indicators list
+        setActiveIndicators(prev => prev.filter(ind => ind.id !== indicatorId));
+      }
     }
   };
+
+  // Handle toggling indicator visibility
+  const handleToggleIndicatorVisibility = (indicatorId: string) => {
+    if (chartRef.current) {
+      setActiveIndicators(prev => {
+        const updated = prev.map(ind => {
+          if (ind.id === indicatorId) {
+            // Toggle visibility
+            const newVisibility = !ind.visible;
+
+            // Update on chart
+            if (newVisibility) {
+              // Show indicator
+              chartRef.current.createIndicator(ind.name, ind.paneId ? true : false, { id: ind.paneId });
+            } else {
+              // Hide indicator
+              chartRef.current.removeIndicator(ind.name, ind.paneId);
+            }
+
+            return { ...ind, visible: newVisibility };
+          }
+          return ind;
+        });
+        return updated;
+      });
+    }
+  };
+
+  // Handle updating indicator parameters
+  const handleUpdateIndicatorParams = (indicatorId: string, newParams: number[]) => {
+    if (chartRef.current) {
+      setActiveIndicators(prev => {
+        const updated = prev.map(ind => {
+          if (ind.id === indicatorId) {
+            // Update params
+            const updatedInd = { ...ind, params: newParams };
+
+            // Update on chart
+            if (ind.visible) {
+              // Remove and recreate with new params
+              chartRef.current.removeIndicator(ind.name, ind.paneId);
+              chartRef.current.createIndicator(ind.name, ind.paneId ? true : false, {
+                id: ind.paneId,
+                params: newParams,
+              });
+            }
+
+            return updatedInd;
+          }
+          return ind;
+        });
+        return updated;
+      });
+    }
+  };
+
+  // Handle opening indicator settings
+  const handleOpenIndicatorSettings = (indicatorId: string) => {
+    setShowIndicatorSettings(indicatorId);
+  };
+
+  // Handle click outside to close indicator settings
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (indicatorSettingsRef.current && !indicatorSettingsRef.current.contains(event.target as Node)) {
+        setShowIndicatorSettings(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Handle changing chart type
   const handleChangeChartType = (type: string) => {
@@ -487,8 +616,125 @@ const Charts: React.FC = () => {
             )}
           </div>
 
-          {/* Chart */}
-          <div className="flex-1" ref={chartContainerRef}></div>
+          {/* Chart with Indicator Settings */}
+          <div className="flex-1 relative" ref={chartContainerRef}>
+            {/* Indicator Labels */}
+            <div className="absolute top-4 left-4 z-10 space-y-2">
+              {activeIndicators.map(indicator => (
+                <div
+                  key={indicator.id}
+                  className={`flex items-center space-x-2 bg-card/80 backdrop-blur-sm px-2 py-1 rounded text-xs ${!indicator.visible ? 'opacity-50' : ''}`}
+                >
+                  <span className="font-medium">{indicator.name}</span>
+                  <span className="text-muted-foreground">
+                    ({indicator.params.join(', ')})
+                  </span>
+                  <div className="flex items-center space-x-1">
+                    <button
+                      className="p-1 rounded hover:bg-card/80"
+                      onClick={() => handleOpenIndicatorSettings(indicator.id)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    <button
+                      className="p-1 rounded hover:bg-card/80"
+                      onClick={() => handleToggleIndicatorVisibility(indicator.id)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        {indicator.visible ? (
+                          <>
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                          </>
+                        ) : (
+                          <>
+                            <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                            <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                            <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                            <line x1="2" x2="22" y1="2" y2="22"></line>
+                          </>
+                        )}
+                      </svg>
+                    </button>
+                    <button
+                      className="p-1 rounded hover:bg-card/80"
+                      onClick={() => handleRemoveIndicator(indicator.id)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Indicator Settings Panel */}
+            {showIndicatorSettings && (
+              <div
+                ref={indicatorSettingsRef}
+                className="absolute top-4 right-4 w-64 bg-card border border-white/10 rounded-md shadow-lg p-4 z-10"
+              >
+                {(() => {
+                  const indicator = activeIndicators.find(ind => ind.id === showIndicatorSettings);
+                  if (!indicator) return null;
+
+                  const indicatorDef = indicators.find(ind => ind.name === indicator.name);
+                  if (!indicatorDef) return null;
+
+                  return (
+                    <>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-semibold">{indicator.name} Settings</h3>
+                        <button
+                          className="p-1 rounded hover:bg-card/80"
+                          onClick={() => setShowIndicatorSettings(null)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                          </svg>
+                        </button>
+                      </div>
+
+                      <div className="space-y-3">
+                        {indicator.params.map((param, index) => (
+                          <div key={index} className="space-y-1">
+                            <label className="text-xs text-muted-foreground">
+                              Parameter {index + 1}
+                            </label>
+                            <input
+                              type="number"
+                              value={param}
+                              onChange={(e) => {
+                                const newParams = [...indicator.params];
+                                newParams[index] = Number(e.target.value);
+                                handleUpdateIndicatorParams(indicator.id, newParams);
+                              }}
+                              className="w-full px-2 py-1 text-sm bg-background border border-white/10 rounded focus:outline-none focus:border-primary"
+                            />
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-4 flex justify-end space-x-2">
+                        <button
+                          className="px-3 py-1 text-xs rounded bg-card/50 hover:bg-card border border-white/10"
+                          onClick={() => setShowIndicatorSettings(null)}
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Bottom Toolbar */}
