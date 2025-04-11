@@ -7,6 +7,8 @@ interface ChartState {
   symbol: string;
   interval: string;
   indicators: string[];
+  chartType: 'candle_solid' | 'candle_stroke' | 'candle_up_stroke_down_solid' | 'candle_down_stroke_up_solid' | 'ohlc' | 'area' | 'line';
+  selectedDrawingTool: string | null;
 }
 
 const Charts: React.FC = () => {
@@ -18,7 +20,9 @@ const Charts: React.FC = () => {
   const [chartState, setChartState] = useState<ChartState>({
     symbol: 'BTC/USDT',
     interval: '15m',
-    indicators: ['MA', 'VOL']
+    indicators: ['MA', 'VOL'],
+    chartType: 'candle_solid',
+    selectedDrawingTool: null
   });
 
   // UI state
@@ -47,7 +51,7 @@ const Charts: React.FC = () => {
           },
         },
         candle: {
-          type: 'candle_solid',
+          type: chartState.chartType,
           styles: {
             upColor: '#26A69A',
             downColor: '#EF5350',
@@ -63,6 +67,17 @@ const Charts: React.FC = () => {
       // Add initial indicators
       chartState.indicators.forEach(indicator => {
         chartRef.current.createIndicator(indicator);
+      });
+
+      // Add crosshair move event listener to update OHLCV info
+      chartRef.current.subscribeAction('crosshair', ({ kLineData }) => {
+        if (kLineData) {
+          const { timestamp, open, high, low, close, volume } = kLineData;
+          const ohlcvInfo = document.getElementById('chart-ohlcv-info');
+          if (ohlcvInfo) {
+            ohlcvInfo.textContent = `O: ${open.toFixed(2)} H: ${high.toFixed(2)} L: ${low.toFixed(2)} C: ${close.toFixed(2)} V: ${volume.toFixed(0)}`;
+          }
+        }
       });
     }
 
@@ -115,6 +130,33 @@ const Charts: React.FC = () => {
       setChartState(prev => ({
         ...prev,
         indicators: prev.indicators.filter(i => i !== indicatorType)
+      }));
+    }
+  };
+
+  // Handle changing chart type
+  const changeChartType = (type: ChartState['chartType']) => {
+    if (chartRef.current) {
+      chartRef.current.setStyles({
+        candle: {
+          type,
+        },
+      });
+      setChartState(prev => ({
+        ...prev,
+        chartType: type
+      }));
+    }
+  };
+
+  // Handle selecting a drawing tool
+  const selectDrawingTool = (tool: string) => {
+    if (chartRef.current) {
+      // In a real implementation, you would activate the drawing tool
+      // For now, we'll just update the state
+      setChartState(prev => ({
+        ...prev,
+        selectedDrawingTool: prev.selectedDrawingTool === tool ? null : tool
       }));
     }
   };
@@ -207,8 +249,96 @@ const Charts: React.FC = () => {
           </div>
         </div>
 
-        {/* Main Chart Area with Right Sidebar */}
+        {/* Main Chart Area with Left and Right Sidebars */}
         <div className="flex-1 flex">
+          {/* Left Toolbar - Drawing Tools */}
+          <div className="w-12 border-r border-white/10 flex flex-col items-center py-2 space-y-2">
+            {/* Line Tool */}
+            <button
+              className={`p-2 rounded ${chartState.selectedDrawingTool === 'line' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+              onClick={() => selectDrawingTool('line')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14"></path>
+              </svg>
+            </button>
+
+            {/* Ray Line Tool */}
+            <button
+              className={`p-2 rounded ${chartState.selectedDrawingTool === 'ray' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+              onClick={() => selectDrawingTool('ray')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 3l18 18"></path>
+              </svg>
+            </button>
+
+            {/* Horizontal Line Tool */}
+            <button
+              className={`p-2 rounded ${chartState.selectedDrawingTool === 'horizontal' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+              onClick={() => selectDrawingTool('horizontal')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12h18"></path>
+              </svg>
+            </button>
+
+            {/* Rectangle Tool */}
+            <button
+              className={`p-2 rounded ${chartState.selectedDrawingTool === 'rect' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+              onClick={() => selectDrawingTool('rect')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              </svg>
+            </button>
+
+            {/* Circle Tool */}
+            <button
+              className={`p-2 rounded ${chartState.selectedDrawingTool === 'circle' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+              onClick={() => selectDrawingTool('circle')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+              </svg>
+            </button>
+
+            {/* Text Tool */}
+            <button
+              className={`p-2 rounded ${chartState.selectedDrawingTool === 'text' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+              onClick={() => selectDrawingTool('text')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 7V4h16v3"></path>
+                <path d="M9 20h6"></path>
+                <path d="M12 4v16"></path>
+              </svg>
+            </button>
+
+            {/* Fibonacci Tool */}
+            <button
+              className={`p-2 rounded ${chartState.selectedDrawingTool === 'fibonacci' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+              onClick={() => selectDrawingTool('fibonacci')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 3v18h18"></path>
+                <path d="m3 9 18-6"></path>
+              </svg>
+            </button>
+
+            {/* Eraser Tool */}
+            <button
+              className={`p-2 rounded mt-auto ${chartState.selectedDrawingTool === 'eraser' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+              onClick={() => selectDrawingTool('eraser')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path>
+                <path d="M22 21H7"></path>
+                <path d="m5 11 9 9"></path>
+              </svg>
+            </button>
+          </div>
+
           {/* Chart */}
           <div className="flex-1" ref={chartContainerRef}></div>
 
@@ -380,6 +510,90 @@ const Charts: React.FC = () => {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Bottom Toolbar */}
+        <div className="h-10 border-t border-white/10 flex items-center justify-between px-4">
+          <div className="flex items-center space-x-4">
+            {/* Chart Type Selector */}
+            <div className="flex items-center space-x-1">
+              {/* Candle Chart */}
+              <button
+                className={`p-1.5 rounded ${chartState.chartType === 'candle_solid' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+                onClick={() => changeChartType('candle_solid')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 5v4"></path>
+                  <rect width="4" height="10" x="7" y="9" rx="1"></rect>
+                  <path d="M9 19v2"></path>
+                  <path d="M17 3v2"></path>
+                  <rect width="4" height="14" x="15" y="5" rx="1"></rect>
+                  <path d="M17 19v2"></path>
+                </svg>
+              </button>
+
+              {/* OHLC Chart */}
+              <button
+                className={`p-1.5 rounded ${chartState.chartType === 'ohlc' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+                onClick={() => changeChartType('ohlc')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="20" x2="12" y2="10"></line>
+                  <line x1="18" y1="20" x2="18" y2="4"></line>
+                  <line x1="6" y1="20" x2="6" y2="16"></line>
+                </svg>
+              </button>
+
+              {/* Line Chart */}
+              <button
+                className={`p-1.5 rounded ${chartState.chartType === 'line' ? 'bg-primary text-primary-foreground' : 'hover:bg-card/50'}`}
+                onClick={() => changeChartType('line')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 3v18h18"></path>
+                  <path d="m3 15 5-5 4 4 5-5 4 4"></path>
+                </svg>
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div className="h-6 w-px bg-white/10"></div>
+
+            {/* Zoom Controls */}
+            <div className="flex items-center space-x-1">
+              <button
+                className="p-1.5 rounded hover:bg-card/50"
+                onClick={() => {
+                  if (chartRef.current) {
+                    chartRef.current.zoomAtCoordinate(0.5, { x: 0, y: 0 });
+                  }
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  <path d="M15 10h-6"></path>
+                </svg>
+              </button>
+              <button
+                className="p-1.5 rounded hover:bg-card/50"
+                onClick={() => {
+                  if (chartRef.current) {
+                    chartRef.current.zoomAtCoordinate(2, { x: 0, y: 0 });
+                  }
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  <path d="M12 7v6"></path>
+                  <path d="M9 10h6"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+            <span id="chart-ohlcv-info">O: 0.00 H: 0.00 L: 0.00 C: 0.00 V: 0</span>
           </div>
         </div>
       </div>
