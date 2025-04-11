@@ -215,30 +215,7 @@ const TradingChart: React.FC<TradingChartProps> = ({
 
   return (
     <div className={`trading-chart-container ${className}`} style={{ width, height }}>
-      <div className="chart-header flex justify-between items-center p-2 border-b border-white/10">
-        <div className="flex items-center">
-          <h3 className="text-lg font-semibold">{symbol}</h3>
-          <span className="ml-2 text-sm text-muted-foreground">{interval}</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button className="px-2 py-1 text-xs bg-card border border-white/10 rounded hover:bg-card/80">
-            1D
-          </button>
-          <button className="px-2 py-1 text-xs bg-card border border-white/10 rounded hover:bg-card/80">
-            1W
-          </button>
-          <button className="px-2 py-1 text-xs bg-card border border-white/10 rounded hover:bg-card/80">
-            1M
-          </button>
-          <button className="px-2 py-1 text-xs bg-card border border-white/10 rounded hover:bg-card/80">
-            1Y
-          </button>
-          <button className="px-2 py-1 text-xs bg-card border border-white/10 rounded hover:bg-card/80">
-            All
-          </button>
-        </div>
-      </div>
-      <div ref={chartContainerRef} style={{ width: '100%', height: 'calc(100% - 40px)' }} />
+      <div ref={chartContainerRef} style={{ width: '100%', height: '100%' }} />
     </div>
   );
 };
