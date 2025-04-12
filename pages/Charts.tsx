@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { DashboardLayout } from '../components/DashboardLayout';
-import { KLineChartPro, DefaultDatafeed } from '@klinecharts/pro';
+import { KLineChartPro } from '@klinecharts/pro';
 
 // Import KLineChart Pro CSS
 import '@klinecharts/pro/dist/klinecharts-pro.css';
@@ -83,33 +83,10 @@ const Charts: React.FC = () => {
           });
         },
         // Subscribe to real-time data updates
-        subscribe: ({ symbol, period, callback }) => {
-          // In a real app, you would subscribe to real-time data here
-          // For demonstration, we'll just update the data every 5 seconds
-          const intervalId = setInterval(() => {
-            const timestamp = Date.now();
-            const price = 5000 + Math.random() * 100;
-            const open = price + Math.random() * 20 - 10;
-            const close = price + Math.random() * 20 - 10;
-            const high = Math.max(open, close) + Math.random() * 20;
-            const low = Math.min(open, close) - Math.random() * 20;
-            const volume = Math.random() * 50 + 10;
-
-            callback({
-              timestamp,
-              open,
-              high,
-              low,
-              close,
-              volume,
-            });
-          }, 5000);
-
+        subscribe: () => {
           // Return a function to unsubscribe
-          return () => {
-            clearInterval(intervalId);
-          };
-        },
+          return () => {};
+        }
       }
     };
 
