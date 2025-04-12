@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { DashboardLayout } from '../components/DashboardLayout';
-import { KLineChartPro } from '@klinecharts/pro';
+import { KLineChartPro, DefaultDatafeed } from '@klinecharts/pro';
 
 // Import KLineChart Pro CSS
 import '@klinecharts/pro/dist/klinecharts-pro.css';
@@ -50,12 +50,11 @@ const Charts: React.FC = () => {
       mainIndicators: ['MA', 'EMA', 'BOLL'],
       subIndicators: ['VOL', 'MACD'],
       drawingBarVisible: true, // Enable drawing toolbar with all tools
-      datafeed: {
-        // Generate random data for demonstration
-        getHistoryKLineData: ({ symbol, period, from, to }) => {
+      datafeed: new DefaultDatafeed({
+        getHistoryKLineData: () => {
           return new Promise(resolve => {
             const dataList = [];
-            let timestamp = from || Date.now() - 60 * 60 * 1000 * 200;
+            let timestamp = Date.now() - 60 * 60 * 1000 * 200;
             let price = 5000;
 
             for (let i = 0; i < 200; i++) {
@@ -81,13 +80,8 @@ const Charts: React.FC = () => {
               more: false,
             });
           });
-        },
-        // Subscribe to real-time data updates
-        subscribe: () => {
-          // Return a function to unsubscribe
-          return () => {};
         }
-      }
+      })
     };
 
     new KLineChartPro(options);
