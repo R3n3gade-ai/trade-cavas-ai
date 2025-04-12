@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { DashboardLayout } from '../components/DashboardLayout';
-import { KLineChartPro, DefaultDatafeed } from '@klinecharts/pro';
+import { KLineChartPro } from '@klinecharts/pro';
 
 // Import KLineChart Pro CSS
 import '@klinecharts/pro/dist/klinecharts-pro.css';
@@ -50,7 +50,7 @@ const Charts: React.FC = () => {
       mainIndicators: ['MA', 'EMA', 'BOLL'],
       subIndicators: ['VOL', 'MACD'],
       drawingBarVisible: true, // Enable drawing toolbar with all tools
-      datafeed: new DefaultDatafeed({
+      datafeed: {
         getHistoryKLineData: () => {
           return new Promise(resolve => {
             const dataList = [];
@@ -80,8 +80,11 @@ const Charts: React.FC = () => {
               more: false,
             });
           });
+        },
+        subscribe: () => {
+          return () => {};
         }
-      })
+      }
     };
 
     new KLineChartPro(options);
