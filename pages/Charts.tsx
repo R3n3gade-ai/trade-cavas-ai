@@ -52,12 +52,12 @@ const Charts: React.FC = () => {
       drawingBarVisible: true, // Enable drawing toolbar with all tools
       datafeed: {
         // Generate random data for demonstration
-        getHistoryData: ({ symbol, period, from, to }) => {
+        getHistoryKLineData: ({ symbol, period, from, to }) => {
           return new Promise(resolve => {
             const dataList = [];
             let timestamp = from || Date.now() - 60 * 60 * 1000 * 200;
             let price = 5000;
-            
+
             for (let i = 0; i < 200; i++) {
               price = price + Math.random() * 20 - 10;
               timestamp += 60 * 60 * 1000;
@@ -75,7 +75,7 @@ const Charts: React.FC = () => {
                 volume,
               });
             }
-            
+
             resolve({
               data: dataList,
               more: false,
@@ -94,7 +94,7 @@ const Charts: React.FC = () => {
             const high = Math.max(open, close) + Math.random() * 20;
             const low = Math.min(open, close) - Math.random() * 20;
             const volume = Math.random() * 50 + 10;
-            
+
             callback({
               timestamp,
               open,
@@ -104,7 +104,7 @@ const Charts: React.FC = () => {
               volume,
             });
           }, 5000);
-          
+
           // Return a function to unsubscribe
           return () => {
             clearInterval(intervalId);
@@ -112,10 +112,10 @@ const Charts: React.FC = () => {
         },
       }
     };
-    
+
     new KLineChartPro(options);
   }, []);
-  
+
   return (
     <DashboardLayout title="Charts" showRefresh={false}>
       <div className="h-full w-full" ref={containerRef}></div>
