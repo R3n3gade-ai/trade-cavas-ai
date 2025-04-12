@@ -1,6 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { DashboardLayout } from '../components/DashboardLayout';
-import * as klinecharts from 'klinecharts';
+import { KLineChartPro, DefaultDatafeed } from '@klinecharts/pro';
+
+// Import KLineChart Pro CSS
+import '@klinecharts/pro/dist/klinecharts-pro.css';
 
 const Charts: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -10,422 +13,121 @@ const Charts: React.FC = () => {
     if (!containerRef.current) {
       return;
     }
-    
-    // Create chart instance with enhanced features
-    const chart = klinecharts.init(containerRef.current, {
-      theme: 'dark',
-      grid: {
-        show: true,
-        horizontal: {
-          show: true,
-          size: 1,
-          color: 'rgba(255, 255, 255, 0.1)',
-          style: 'solid',
-        },
-        vertical: {
-          show: true,
-          size: 1,
-          color: 'rgba(255, 255, 255, 0.1)',
-          style: 'solid',
-        },
+
+    // Create KLineChart Pro instance with all features from the preview demo
+    const chart = new KLineChartPro({
+      container: containerRef.current,
+      watermark: `<svg
+        class="logo"
+        viewBox="0 0 160 160">
+        <path d="M95.1576,6.27848L153.722,64.8424Q156.803,67.9238,158.43,71.9362Q160,75.8078,160,80Q160,84.1922,158.43,88.0638Q156.803,92.0762,153.722,95.1576L95.1576,153.722Q92.0762,156.803,88.0638,158.43Q84.1922,160,80,160Q75.8078,160,71.9362,158.43Q67.9238,156.803,64.8424,153.722L6.27848,95.1576Q3.19708,92.0762,1.56999,88.0638Q0,84.1922,0,80Q0,75.8078,1.56999,71.9362Q3.19707,67.9238,6.27848,64.8424L64.8424,6.27848Q67.9238,3.19707,71.9362,1.56999Q75.8078,0,80,0Q84.1922,0,88.0638,1.56999Q92.0762,3.19707,95.1576,6.27848ZM87.9397,13.4964Q86.322,11.8787,84.2279,11.0295Q82.2013,10.2077,80,10.2077Q77.7987,10.2077,75.7721,11.0295Q73.678,11.8787,72.0603,13.4964L54.5534,31.0033L105.447,31.0033L87.9397,13.4964ZM107.561,118.789Q109.848,118.789,111.93,117.909Q113.944,117.057,115.5,115.5Q117.057,113.944,117.909,111.93Q118.789,109.848,118.789,107.561L118.789,52.4393Q118.789,50.1516,117.909,48.0703Q117.057,46.0562,115.5,44.4996Q113.944,42.9431,111.93,42.0912Q109.848,41.2109,107.561,41.2109L52.4393,41.2109Q50.1515,41.2109,48.0703,42.0912Q46.0562,42.9431,44.4996,44.4996Q42.9431,46.0562,42.0912,48.0703Q41.2109,50.1515,41.2109,52.4393L41.2109,107.561Q41.2109,109.848,42.0912,111.93Q42.9431,113.944,44.4996,115.5Q46.0562,117.057,48.0703,117.909Q50.1516,118.789,52.4393,118.789L107.561,118.789ZM13.4964,72.0603L31.0033,54.5534L31.0033,105.447L13.4964,87.9397Q11.8787,86.322,11.0295,84.2278Q10.2077,82.2013,10.2077,80Q10.2077,77.7987,11.0295,75.7721Q11.8787,73.678,13.4964,72.0603ZM146.504,87.9397L128.997,105.447L128.997,54.5534L146.504,72.0603Q148.121,73.678,148.971,75.7721Q149.792,77.7987,149.792,80Q149.792,82.2013,148.971,84.2279Q148.121,86.322,146.504,87.9397ZM72.0603,146.504L54.5534,128.997L105.447,128.997L87.9397,146.504Q86.322,148.121,84.2278,148.971Q82.2012,149.792,80,149.792Q77.7987,149.792,75.7721,148.971Q73.678,148.121,72.0603,146.504Z" fill-rule="evenodd" fill-opacity="1"/>
+        <path d="M64.16208911132813,62.68834972381592C63.348189111328125,62.68834972381592,62.68838911132812,63.27273572381592,62.68838911132812,63.993609723815915L62.68838911132812,71.82518972381592L55.319959111328124,71.82518972381592C53.69216911132813,71.82518972381592,52.372589111328125,72.99394972381592,52.372589111328125,74.43574972381592L52.372589111328125,96.62514972381592C52.372589111328125,98.06694972381592,53.69216911132813,99.23574972381593,55.319959111328124,99.23574972381593L62.68838911132812,99.23574972381593L62.68838911132812,107.06724972381592C62.68838911132812,107.78814972381592,63.348189111328125,108.37254972381592,64.16208911132813,108.37254972381592C64.97598911132812,108.37254972381592,65.63578911132812,107.78814972381592,65.63578911132812,107.06724972381592L65.63578911132812,99.23574972381593L73.00418911132812,99.23574972381593C74.63198911132812,99.23574972381593,75.95148911132813,98.06694972381592,75.95148911132813,96.62514972381592L75.95148911132813,74.43574972381592C75.95148911132813,72.99394972381592,74.63198911132812,71.82518972381592,73.00418911132812,71.82518972381592L65.63578911132812,71.82518972381592L65.63578911132812,63.993609723815915C65.63578911132812,63.27273572381592,64.97598911132812,62.68834972381592,64.16208911132813,62.68834972381592Z" fill-rule="evenodd" fill-opacity="1"/>
+        <path d="M96.58314395141602,52.37255859375C95.76924395141602,52.37255859375,95.10944395141601,52.95694459375,95.10944395141601,53.67781859375L95.10944395141601,61.50939859375L87.74101395141602,61.50939859375C86.11322395141602,61.50939859375,84.79364395141602,62.67815859375,84.79364395141602,64.11995859375L84.79364395141602,86.30935859375C84.79364395141602,87.75115859375,86.11322395141602,88.91995859375001,87.74101395141602,88.91995859375001L95.10944395141601,88.91995859375001L95.10944395141601,96.75145859375C95.10944395141601,97.47235859375,95.76924395141602,98.05675859375,96.58314395141602,98.05675859375C97.39704395141601,98.05675859375,98.05684395141601,97.47235859375,98.05684395141601,96.75145859375L98.05684395141601,88.91995859375001L105.42524395141601,88.91995859375001C107.05304395141602,88.91995859375001,108.37254395141602,87.75115859375,108.37254395141602,86.30935859375L108.37254395141602,64.11995859375C108.37254395141602,62.67815859375,107.05304395141602,61.50939859375,105.42524395141601,61.50939859375L98.05684395141601,61.50939859375L98.05684395141601,53.67781859375C98.05684395141601,52.95694459375,97.39704395141601,52.37255859375,96.58314395141602,52.37255859375Z" fill-rule="evenodd" fill-opacity="1"/>
+      </svg>`,
+      symbol: {
+        exchange: 'XNYS',
+        market: 'stocks',
+        name: 'Alibaba Group Holding Limited American Depositary Shares, each represents eight Ordinary Shares',
+        shortName: 'BABA',
+        ticker: 'BABA',
+        priceCurrency: 'usd',
+        type: 'ADRC',
+        logo: 'data:image/png;base64,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'
       },
-      candle: {
-        type: 'candle_solid',
-        styles: {
-          upColor: '#26A69A',
-          downColor: '#EF5350',
-          noChangeColor: '#888888',
+      period: { multiplier: 15, timespan: 'minute', text: '15m' },
+      periods: [
+        { multiplier: 1, timespan: 'minute', text: '1m' },
+        { multiplier: 5, timespan: 'minute', text: '5m' },
+        { multiplier: 15, timespan: 'minute', text: '15m' },
+        { multiplier: 30, timespan: 'minute', text: '30m' },
+        { multiplier: 1, timespan: 'hour', text: '1h' },
+        { multiplier: 2, timespan: 'hour', text: '2h' },
+        { multiplier: 4, timespan: 'hour', text: '4h' },
+        { multiplier: 1, timespan: 'day', text: 'D' },
+        { multiplier: 1, timespan: 'week', text: 'W' },
+        { multiplier: 1, timespan: 'month', text: 'M' },
+        { multiplier: 1, timespan: 'year', text: 'Y' },
+      ],
+      mainIndicators: ['MA', 'EMA', 'BOLL'],
+      subIndicators: ['VOL', 'MACD'],
+      drawingBarVisible: true, // Enable drawing toolbar with all tools
+      datafeed: {
+        // Generate random data for demonstration
+        getHistoryData: ({ symbol, period, from, to }) => {
+          return new Promise(resolve => {
+            const dataList = [];
+            let timestamp = from || Date.now() - 60 * 60 * 1000 * 200;
+            let price = 5000;
+            
+            for (let i = 0; i < 200; i++) {
+              price = price + Math.random() * 20 - 10;
+              timestamp += 60 * 60 * 1000;
+              const open = price + Math.random() * 20 - 10;
+              const close = price + Math.random() * 20 - 10;
+              const high = Math.max(open, close) + Math.random() * 20;
+              const low = Math.min(open, close) - Math.random() * 20;
+              const volume = Math.random() * 50 + 10;
+              dataList.push({
+                timestamp,
+                open,
+                high,
+                low,
+                close,
+                volume,
+              });
+            }
+            
+            resolve({
+              data: dataList,
+              more: false,
+            });
+          });
         },
-      },
-      technicalIndicator: {
-        bar: {
-          upColor: '#26A69A',
-          downColor: '#EF5350',
-          noChangeColor: '#888888',
+        // Subscribe to real-time data updates
+        subscribe: ({ symbol, period, callback }) => {
+          // In a real app, you would subscribe to real-time data here
+          // For demonstration, we'll just update the data every 5 seconds
+          const intervalId = setInterval(() => {
+            const timestamp = Date.now();
+            const price = 5000 + Math.random() * 100;
+            const open = price + Math.random() * 20 - 10;
+            const close = price + Math.random() * 20 - 10;
+            const high = Math.max(open, close) + Math.random() * 20;
+            const low = Math.min(open, close) - Math.random() * 20;
+            const volume = Math.random() * 50 + 10;
+            
+            callback({
+              timestamp,
+              open,
+              high,
+              low,
+              close,
+              volume,
+            });
+          }, 5000);
+          
+          // Return a function to unsubscribe
+          return () => {
+            clearInterval(intervalId);
+          };
         },
-        line: {
-          size: 1,
-        },
-      },
-      crosshair: {
-        show: true,
-        horizontal: {
-          show: true,
-          line: {
-            show: true,
-            style: 'dashed',
-            dashedValue: [4, 2],
-            size: 1,
-            color: 'rgba(255, 255, 255, 0.3)',
-          },
-          text: {
-            show: true,
-            color: '#FFFFFF',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            borderRadius: 2,
-            padding: [4, 6],
-            fontSize: 12,
-          },
-        },
-        vertical: {
-          show: true,
-          line: {
-            show: true,
-            style: 'dashed',
-            dashedValue: [4, 2],
-            size: 1,
-            color: 'rgba(255, 255, 255, 0.3)',
-          },
-          text: {
-            show: true,
-            color: '#FFFFFF',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            borderRadius: 2,
-            padding: [4, 6],
-            fontSize: 12,
-          },
-        },
-      },
+      }
     });
     
     // Store chart instance for later use
     chartRef.current = chart;
-    
-    // Generate random data
-    function generateRandomData(baseTimestamp, basePrice, dataSize) {
-      const dataList = [];
-      let timestamp = baseTimestamp;
-      let price = basePrice;
-      for (let i = 0; i < dataSize; i++) {
-        price = price + Math.random() * 20 - 10;
-        timestamp += 60 * 60 * 1000;
-        const open = price + Math.random() * 20 - 10;
-        const close = price + Math.random() * 20 - 10;
-        const high = Math.max(open, close) + Math.random() * 20;
-        const low = Math.min(open, close) - Math.random() * 20;
-        const volume = Math.random() * 50 + 10;
-        dataList.push({
-          timestamp,
-          open,
-          high,
-          low,
-          close,
-          volume,
-        });
-      }
-      return dataList;
-    }
-    
-    const timestamp = Date.now();
-    const dataList = generateRandomData(timestamp - 60 * 60 * 1000 * 200, 5000, 200);
-    chart.applyNewData(dataList);
-    
-    // Add indicators
-    chart.createIndicator('MA', false);
-    chart.createIndicator('BOLL', false);
-    chart.createIndicator('VOL', true);
-    chart.createIndicator('MACD', true);
-    
-    // Create drawing tools toolbar
-    const toolbarContainer = document.createElement('div');
-    toolbarContainer.style.position = 'absolute';
-    toolbarContainer.style.top = '60px';
-    toolbarContainer.style.right = '20px';
-    toolbarContainer.style.display = 'flex';
-    toolbarContainer.style.flexDirection = 'column';
-    toolbarContainer.style.gap = '8px';
-    toolbarContainer.style.backgroundColor = '#1e1e1e';
-    toolbarContainer.style.padding = '8px';
-    toolbarContainer.style.borderRadius = '4px';
-    toolbarContainer.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.2)';
-    toolbarContainer.style.zIndex = '10';
-    containerRef.current.appendChild(toolbarContainer);
-    
-    // Create drawing tool categories
-    const categories = [
-      { name: 'Line Tools', icon: 'line' },
-      { name: 'Fibonacci Tools', icon: 'fibonacciLine' },
-      { name: 'Pattern Tools', icon: 'circle' },
-      { name: 'Text Tools', icon: 'text' },
-      { name: 'Measure Tools', icon: 'horizontalLine' },
-    ];
-    
-    // Create category buttons
-    categories.forEach((category, index) => {
-      const categoryContainer = document.createElement('div');
-      categoryContainer.style.position = 'relative';
-      categoryContainer.style.cursor = 'pointer';
-      
-      const button = document.createElement('button');
-      button.textContent = category.name;
-      button.style.padding = '8px 12px';
-      button.style.backgroundColor = '#2e2e2e';
-      button.style.color = 'white';
-      button.style.border = 'none';
-      button.style.borderRadius = '4px';
-      button.style.cursor = 'pointer';
-      button.style.fontSize = '12px';
-      button.style.fontWeight = 'bold';
-      button.style.width = '100%';
-      button.style.textAlign = 'left';
-      
-      // Create submenu
-      const submenu = document.createElement('div');
-      submenu.style.position = 'absolute';
-      submenu.style.left = '100%';
-      submenu.style.top = '0';
-      submenu.style.backgroundColor = '#2e2e2e';
-      submenu.style.padding = '8px';
-      submenu.style.borderRadius = '4px';
-      submenu.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.2)';
-      submenu.style.display = 'none';
-      submenu.style.zIndex = '11';
-      submenu.style.minWidth = '150px';
-      
-      // Show submenu on hover
-      categoryContainer.addEventListener('mouseenter', () => {
-        submenu.style.display = 'block';
-      });
-      
-      categoryContainer.addEventListener('mouseleave', () => {
-        submenu.style.display = 'none';
-      });
-      
-      // Add tools to submenu based on category
-      let tools = [];
-      
-      if (category.name === 'Line Tools') {
-        tools = [
-          { name: 'Line', value: 'line' },
-          { name: 'Ray', value: 'rayLine' },
-          { name: 'Arrow', value: 'arrow' },
-          { name: 'Horizontal Line', value: 'horizontalLine' },
-          { name: 'Vertical Line', value: 'verticalLine' },
-          { name: 'Parallel Line', value: 'parallelLine' },
-          { name: 'Price Line', value: 'priceLine' },
-        ];
-      } else if (category.name === 'Fibonacci Tools') {
-        tools = [
-          { name: 'Fibonacci Line', value: 'fibonacciLine' },
-          { name: 'Fibonacci Extension', value: 'fibonacciLine' },
-          { name: 'Fibonacci Fan', value: 'fibonacciLine' },
-          { name: 'Fibonacci Arc', value: 'fibonacciLine' },
-          { name: 'Fibonacci Circle', value: 'fibonacciLine' },
-          { name: 'Fibonacci Time Zones', value: 'fibonacciLine' },
-          { name: 'Fibonacci Spiral', value: 'fibonacciLine' },
-        ];
-      } else if (category.name === 'Pattern Tools') {
-        tools = [
-          { name: 'Rectangle', value: 'rect' },
-          { name: 'Circle', value: 'circle' },
-          { name: 'Triangle', value: 'triangle' },
-          { name: 'Wave Pattern', value: 'line' },
-          { name: 'ABC Pattern', value: 'line' },
-          { name: 'Elliott Wave', value: 'line' },
-        ];
-      } else if (category.name === 'Text Tools') {
-        tools = [
-          { name: 'Text', value: 'text' },
-          { name: 'Annotation', value: 'simpleAnnotation' },
-          { name: 'Tag', value: 'simpleTag' },
-        ];
-      } else if (category.name === 'Measure Tools') {
-        tools = [
-          { name: 'Measure Line', value: 'line' },
-          { name: 'Measure Angle', value: 'line' },
-          { name: 'Measure Rectangle', value: 'rect' },
-          { name: 'Price Range', value: 'priceLine' },
-          { name: 'Percentage', value: 'priceLine' },
-        ];
-      }
-      
-      // Add tools to submenu
-      tools.forEach(tool => {
-        const toolButton = document.createElement('button');
-        toolButton.textContent = tool.name;
-        toolButton.style.padding = '6px 12px';
-        toolButton.style.backgroundColor = 'transparent';
-        toolButton.style.color = 'white';
-        toolButton.style.border = 'none';
-        toolButton.style.borderRadius = '4px';
-        toolButton.style.cursor = 'pointer';
-        toolButton.style.fontSize = '12px';
-        toolButton.style.display = 'block';
-        toolButton.style.width = '100%';
-        toolButton.style.textAlign = 'left';
-        
-        toolButton.addEventListener('mouseenter', () => {
-          toolButton.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-        });
-        
-        toolButton.addEventListener('mouseleave', () => {
-          toolButton.style.backgroundColor = 'transparent';
-        });
-        
-        toolButton.addEventListener('click', () => {
-          // Cancel any existing drawing
-          chart.removeOverlay();
-          // Start new drawing
-          chart.createOverlay({
-            name: tool.value,
-            styles: {
-              color: '#1E88E5',
-              size: 1,
-            },
-          });
-        });
-        
-        submenu.appendChild(toolButton);
-      });
-      
-      categoryContainer.appendChild(button);
-      categoryContainer.appendChild(submenu);
-      toolbarContainer.appendChild(categoryContainer);
-      
-      // Add separator after each category except the last one
-      if (index < categories.length - 1) {
-        const separator = document.createElement('div');
-        separator.style.height = '1px';
-        separator.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-        separator.style.margin = '4px 0';
-        toolbarContainer.appendChild(separator);
-      }
-    });
-    
-    // Add clear button
-    const clearButton = document.createElement('button');
-    clearButton.textContent = 'Clear All';
-    clearButton.style.padding = '8px 12px';
-    clearButton.style.backgroundColor = '#EF5350';
-    clearButton.style.color = 'white';
-    clearButton.style.border = 'none';
-    clearButton.style.borderRadius = '4px';
-    clearButton.style.cursor = 'pointer';
-    clearButton.style.fontSize = '12px';
-    clearButton.style.fontWeight = 'bold';
-    clearButton.style.marginTop = '12px';
-    
-    clearButton.addEventListener('click', () => {
-      chart.removeOverlay();
-      chart.clearOverlay();
-    });
-    
-    toolbarContainer.appendChild(clearButton);
-    
-    // Create indicator toolbar
-    const indicatorContainer = document.createElement('div');
-    indicatorContainer.style.position = 'absolute';
-    indicatorContainer.style.top = '60px';
-    indicatorContainer.style.left = '20px';
-    indicatorContainer.style.display = 'flex';
-    indicatorContainer.style.flexDirection = 'column';
-    indicatorContainer.style.gap = '8px';
-    indicatorContainer.style.backgroundColor = '#1e1e1e';
-    indicatorContainer.style.padding = '8px';
-    indicatorContainer.style.borderRadius = '4px';
-    indicatorContainer.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.2)';
-    indicatorContainer.style.zIndex = '10';
-    containerRef.current.appendChild(indicatorContainer);
-    
-    // Indicator tools
-    const indicators = [
-      { name: 'MA', value: 'MA' },
-      { name: 'EMA', value: 'EMA' },
-      { name: 'BOLL', value: 'BOLL' },
-      { name: 'SAR', value: 'SAR' },
-      { name: 'MACD', value: 'MACD' },
-      { name: 'KDJ', value: 'KDJ' },
-      { name: 'RSI', value: 'RSI' },
-      { name: 'VOL', value: 'VOL' },
-    ];
-    
-    // Create indicator buttons
-    indicators.forEach(indicator => {
-      const button = document.createElement('button');
-      button.textContent = indicator.name;
-      button.style.padding = '6px 12px';
-      button.style.backgroundColor = '#2e2e2e';
-      button.style.color = 'white';
-      button.style.border = 'none';
-      button.style.borderRadius = '4px';
-      button.style.cursor = 'pointer';
-      button.style.fontSize = '12px';
-      button.style.fontWeight = 'bold';
-      
-      button.addEventListener('click', () => {
-        // Add indicator
-        const isOverlay = ['MA', 'EMA', 'BOLL', 'SAR'].includes(indicator.value);
-        chart.createIndicator(indicator.value, !isOverlay);
-      });
-      
-      indicatorContainer.appendChild(button);
-    });
-    
-    // Create period toolbar
-    const periodContainer = document.createElement('div');
-    periodContainer.style.position = 'absolute';
-    periodContainer.style.top = '10px';
-    periodContainer.style.left = '50%';
-    periodContainer.style.transform = 'translateX(-50%)';
-    periodContainer.style.display = 'flex';
-    periodContainer.style.gap = '4px';
-    periodContainer.style.backgroundColor = '#1e1e1e';
-    periodContainer.style.padding = '4px';
-    periodContainer.style.borderRadius = '4px';
-    periodContainer.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.2)';
-    periodContainer.style.zIndex = '10';
-    containerRef.current.appendChild(periodContainer);
-    
-    // Period options
-    const periods = [
-      { text: '1m', value: '1m' },
-      { text: '5m', value: '5m' },
-      { text: '15m', value: '15m' },
-      { text: '30m', value: '30m' },
-      { text: '1h', value: '1h' },
-      { text: '4h', value: '4h' },
-      { text: '1d', value: '1d' },
-      { text: '1w', value: '1w' },
-    ];
-    
-    // Create period buttons
-    periods.forEach((period, index) => {
-      const button = document.createElement('button');
-      button.textContent = period.text;
-      button.style.padding = '4px 8px';
-      button.style.backgroundColor = index === 2 ? 'rgba(255, 255, 255, 0.2)' : 'transparent';
-      button.style.color = 'white';
-      button.style.border = 'none';
-      button.style.borderRadius = '2px';
-      button.style.cursor = 'pointer';
-      button.style.fontSize = '12px';
-      
-      button.addEventListener('mouseenter', () => {
-        if (index !== 2) {
-          button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-        }
-      });
-      
-      button.addEventListener('mouseleave', () => {
-        if (index !== 2) {
-          button.style.backgroundColor = 'transparent';
-        }
-      });
-      
-      periodContainer.appendChild(button);
-    });
-    
+
     // Clean up on unmount
     return () => {
       if (chartRef.current) {
-        chartRef.current.dispose();
+        chartRef.current.destroy();
       }
     };
   }, []);
   
   return (
     <DashboardLayout title="Charts" showRefresh={false}>
-      <div className="h-full w-full relative" ref={containerRef}></div>
+      <div className="h-full w-full" ref={containerRef}></div>
     </DashboardLayout>
   );
 };
