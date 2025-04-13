@@ -1,0 +1,74 @@
+/* ReactFlow Styles */
+.react-flow__container {
+  height: 100%;
+  width: 100%;
+}
+
+/* Custom node styles */
+.custom-node {
+  padding: 0;
+  border-radius: 8px;
+  background-color: #1a192b;
+  color: white;
+  border: 1px solid #555;
+  width: 180px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.custom-node-header {
+  padding: 10px;
+  border-bottom: 1px solid #555;
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.custom-node-content {
+  padding: 12px;
+  font-size: 0.9rem;
+}
+
+/* Handle styling */
+.react-flow__handle {
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  border: 1px solid #1a192b;
+}
+
+.react-flow__handle:hover {
+  background-color: #ff0072;
+}
+
+/* Edge styling */
+.react-flow__edge-path {
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.react-flow__edge-text {
+  fill: #fff;
+}
+
+/* Controls and UI elements */
+.react-flow__controls {
+  box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.1);
+}
+
+.react-flow__minimap {
+  background-color: #1a192b;
+  border: 1px solid #555;
+}
+
+.react-flow__minimap-mask {
+  fill: rgba(255, 255, 255, 0.1);
+}
+
+.react-flow__minimap-node {
+  fill: #ff0072;
+  stroke: none;
+}
+
+.react-flow__attribution {
+  background-color: transparent;
+}

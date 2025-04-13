@@ -3,7 +3,9 @@ import { createBrowserRouter } from "react-router-dom";
 import { userRoutes } from "./user-routes";
 import ErrorBoundary from "./components/ErrorBoundary";
 import LazyWrapper from "./components/LazyWrapper";
-import SimpleLanding from "./simple-landing";
+
+// Import Canvas component for default route
+const Canvas = lazy(() => import("./pages/Canvas"));
 
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const SomethingWentWrongPage = lazy(
@@ -25,7 +27,13 @@ const wrappedRoutes = userRoutes.map(route => ({
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <SimpleLanding />,
+    element: (
+      <ErrorBoundary>
+        <LazyWrapper>
+          <Canvas />
+        </LazyWrapper>
+      </ErrorBoundary>
+    ),
     errorElement: <ErrorBoundary />
   },
   ...wrappedRoutes,

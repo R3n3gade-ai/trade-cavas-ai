@@ -1,5 +1,5 @@
 import { Suspense, useTransition, useEffect } from "react";
-import { router } from "./router-new";
+import { router } from "./router";
 import { RouterProvider } from "react-router-dom";
 import { Toaster } from "sonner";
 import { useThemeStore } from "./utils/themeStore";

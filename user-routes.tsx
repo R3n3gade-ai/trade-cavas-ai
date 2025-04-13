@@ -19,19 +19,22 @@ const FTClassic = lazy(() => import("./pages/FTClassic.tsx"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard.tsx"));
 const Login = lazy(() => import("./pages/Login.tsx"));
 const Options = lazy(() => import("./pages/Options.tsx"));
-const OptionsGamma = lazy(() => import("./pages/OptionsGamma.tsx"));
+// Temporarily commented out due to dependency issues
+// const OptionsGamma = lazy(() => import("./pages/OptionsGamma.tsx"));
 const PersonalEducation = lazy(() => import("./pages/PersonalEducation.tsx"));
 const Profile = lazy(() => import("./pages/Profile.tsx"));
 const Screeners = lazy(() => import("./pages/Screeners.tsx"));
 const Signup = lazy(() => import("./pages/Signup.tsx"));
 const Social = lazy(() => import("./pages/Social.tsx"));
+const Settings = lazy(() => import("./pages/Settings.tsx"));
 
 const TedAI = lazy(() => import("./pages/TedAI.tsx"));
 
 export const userRoutes: RouteObject[] = [
 
 
-	{ path: "/", element: <App />},
+	// Root path is handled in router.tsx
+	// { path: "/", element: <App />},
 	{ path: "/blog", element: <Blog />},
 	{ path: "/canvas", element: <Canvas />},
 	{ path: "/charts", element: <Charts />},
@@ -46,14 +49,16 @@ export const userRoutes: RouteObject[] = [
 	{ path: "/leaderboard", element: <Leaderboard />},
 	{ path: "/login", element: <Login />},
 	{ path: "/options", element: <Options />},
-	{ path: "/options-gamma", element: <OptionsGamma />},
-	{ path: "/optionsgamma", element: <OptionsGamma />},
+	// Temporarily commented out due to dependency issues
+	// { path: "/options-gamma", element: <OptionsGamma />},
+	// { path: "/optionsgamma", element: <OptionsGamma />},
 	{ path: "/personal-education", element: <PersonalEducation />},
 	{ path: "/personaleducation", element: <PersonalEducation />},
 	{ path: "/profile", element: <Profile />},
 	{ path: "/screeners", element: <Screeners />},
 	{ path: "/signup", element: <Signup />},
 	{ path: "/social", element: <Social />},
+	{ path: "/settings", element: <Settings />},
 
 	{ path: "/ted-ai", element: <TedAI />},
 	{ path: "/tedai", element: <TedAI />},

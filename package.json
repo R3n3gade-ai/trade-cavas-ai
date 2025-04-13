@@ -141,7 +141,7 @@
     "@uidotdev/usehooks": "2.4.1",
     "@vapi-ai/web": "2.1.3",
     "@wavesurfer/react": "1.0.7",
-    "@xyflow/react": "12.4.1",
+    "@xyflow/react": "^12.5.5",
     "@xzdarcy/react-timeline-editor": "0.1.9",
     "ag-grid-react": "32.1.0",
     "agora-rtc-react": "2.3.0",

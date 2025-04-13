@@ -20012,23 +20012,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xyflow/react@npm:12.4.1":
-  version: 12.4.1
-  resolution: "@xyflow/react@npm:12.4.1"
+"@xyflow/react@npm:^12.5.5":
+  version: 12.5.5
+  resolution: "@xyflow/react@npm:12.5.5"
   dependencies:
-    "@xyflow/system": "npm:0.0.49"
+    "@xyflow/system": "npm:0.0.55"
     classcat: "npm:^5.0.3"
     zustand: "npm:^4.4.0"
   peerDependencies:
     react: ">=17"
     react-dom: ">=17"
-  checksum: edc2a2a7935265920025c3f8ad04c330baf8a0a754d92390539bed66a8f1db761e1d13959bbe2f8c5e6e843c0459018ab2cdcd7e529f08eaa89e1cae5ff95337
+  checksum: cdce64b67a5828dabdf3846f3c70953e6f960f52efbfeec9bbe55121b4958cb0462ffa12c9da09c65d311ed43e77065548269fb33b2551879432f7d74784c19d
   languageName: node
   linkType: hard
 
-"@xyflow/system@npm:0.0.49":
-  version: 0.0.49
-  resolution: "@xyflow/system@npm:0.0.49"
+"@xyflow/system@npm:0.0.55":
+  version: 0.0.55
+  resolution: "@xyflow/system@npm:0.0.55"
   dependencies:
     "@types/d3-drag": "npm:^3.0.7"
     "@types/d3-selection": "npm:^3.0.10"
@@ -20037,7 +20037,7 @@ __metadata:
     d3-drag: "npm:^3.0.0"
     d3-selection: "npm:^3.0.0"
     d3-zoom: "npm:^3.0.0"
-  checksum: 673b399777d95e12e3e2d3feb181c1670c3780620a16e25662b6f4f0e68b0fbc3c470f6da917ca91d80115197acb22a16b58e35e37c770c72fb66a2eab32b43f
+  checksum: 5b110e57042ea727e0d2617a58c53e9c35e9691b6ca73a75586c9cf0e1b3caca651767a61d12a587ca4efdb3e98a78bc20ecc5aec3ff4a91fb56cae12c7d5ba5
   languageName: node
   linkType: hard
 
@@ -31618,7 +31618,7 @@ __metadata:
     "@vitejs/plugin-react": "npm:^4.0.0"
     "@vitejs/plugin-react-swc": "npm:3.3.2"
     "@wavesurfer/react": "npm:1.0.7"
-    "@xyflow/react": "npm:12.4.1"
+    "@xyflow/react": "npm:^12.5.5"
     "@xzdarcy/react-timeline-editor": "npm:0.1.9"
     ag-grid-react: "npm:32.1.0"
     agora-rtc-react: "npm:2.3.0"
