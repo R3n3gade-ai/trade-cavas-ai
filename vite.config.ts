@@ -68,6 +68,9 @@ const buildVariables = () => {
 export default defineConfig({
 	define: buildVariables(),
 	plugins: [react(), splitVendorChunkPlugin(), tsConfigPaths(), injectHTML()],
+	css: {
+		postcss: './postcss.config.js',
+	},
 	server: {
 		proxy: {
 			"/routes": {
