@@ -1,0 +1,42 @@
+.highcharts-stocktools-toolbar {
+  position: absolute;
+  z-index: 100;
+  top: 0;
+  right: 0;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+
+.highcharts-menu-wrapper {
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+.highcharts-popup {
+  background-color: #1a1a1a;
+  color: #ccc;
+  border: 1px solid #333;
+}
+
+.highcharts-popup input,
+.highcharts-popup select {
+  background-color: #333;
+  color: #ccc;
+  border: 1px solid #555;
+}
+
+.highcharts-popup button {
+  background-color: #333;
+  color: #ccc;
+  border: 1px solid #555;
+}
+
+.highcharts-popup button:hover {
+  background-color: #444;
+}
+
+.highcharts-indicator-list {
+  max-height: 300px;
+  overflow-y: auto;
+}

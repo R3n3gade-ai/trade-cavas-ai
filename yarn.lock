@@ -5582,7 +5582,7 @@
     bs58 "^5.0.0"
     uuid "^8.3.2"
 
-"@klinecharts/pro@0.0.9":
+"@klinecharts/pro@0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@klinecharts/pro/-/pro-0.1.1.tgz#850989f5b32aae898db940d274ce349dda525602"
   integrity sha512-ChKW0/ra183CFKevzWSn1HwrLY3YOpERA8wfso+MMTyTYKEKx8Sd7gFTr5Hfn6R4MVru7xSlUHsqjlq/WpXrVA==
@@ -20846,12 +20846,19 @@ hey-listen@^1.0.8:
   resolved "https://registry.yarnpkg.com/hey-listen/-/hey-listen-1.0.8.tgz#8e59561ff724908de1aa924ed6ecc84a56a9aa68"
   integrity sha512-COpmrF2NOg4TBWUJ5UVyaCU2A88wEMkUPK4hNqyCkqHbxT92BbvfjoSozkAIIm6XhicGlJHhFdullInrdhwU8Q==
 
+highcharts-custom-events@^3.0.10:
+  version "3.0.10"
+  resolved "https://registry.yarnpkg.com/highcharts-custom-events/-/highcharts-custom-events-3.0.10.tgz#6f2fcd67d062221e5dd2bfdfdccb1bba1b695372"
+  integrity sha512-swD0v8qovr9tzW6wNdebJKWQS5xTUclU2XznZw7+U6zMpedzEw7nxMZCog+P3JBDvp2cLO8ySiy7EC29DayfFw==
+  dependencies:
+    highcharts ">=5.0.9"
+
 highcharts-react-official@^3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/highcharts-react-official/-/highcharts-react-official-3.2.1.tgz#4b62a7af2969bdebde6b338d36f6b9bf1f1029bc"
   integrity sha512-hyQTX7ezCxl7JqumaWiGsroGWalzh24GedQIgO3vJbkGOZ6ySRAltIYjfxhrq4HszJOySZegotEF7v+haQ75UA==
 
-highcharts@^12.2.0:
+highcharts@>=5.0.9, highcharts@^12.2.0:
   version "12.2.0"
   resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-12.2.0.tgz#264633af7e815f0f6291c0d570b1da12e323e9de"
   integrity sha512-UUN+osTP3aeGc4KmoMuWAjzpKif8GYHFozzYI4O8h1ILGof25M/ZGBpXLvgqf1z0LVh7N9eG7i0HnzMfjcR4nA==
@@ -22210,7 +22217,7 @@ kleur@^4.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-4.1.5.tgz#95106101795f7050c6c650f350c683febddb1780"
   integrity sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==
 
-klinecharts@9.9.0:
+klinecharts@9.8.12:
   version "9.8.12"
   resolved "https://registry.yarnpkg.com/klinecharts/-/klinecharts-9.8.12.tgz#8483639af88571d30f0d3f8ab4842f31f6aea22d"
   integrity sha512-yKLWMliwwIsiQsAI8geNOkE8P6SFsvaa0leX2isgB4Y1SvM3tS6Y9pe7ZbKkiLtOE0P0W9W9wb0M2wH0xAPG7w==

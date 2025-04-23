@@ -1,0 +1,179 @@
+/* Dark theme for Highcharts Stock Tools */
+
+/* Main toolbar */
+.highcharts-stocktools-toolbar {
+  background-color: #1a1a1a !important;
+  border: 1px solid #333 !important;
+}
+
+.highcharts-stocktools-toolbar .highcharts-menu-item {
+  background-color: #1a1a1a !important;
+  color: #ccc !important;
+}
+
+.highcharts-stocktools-toolbar .highcharts-menu-item:hover {
+  background-color: #333 !important;
+  color: #fff !important;
+}
+
+/* Toolbar buttons */
+.highcharts-bindings-wrapper .highcharts-stocktools-toolbar li {
+  background-color: #000 !important;
+}
+
+.highcharts-bindings-wrapper li > button.highcharts-menu-item-btn {
+  color: #fff !important;
+}
+
+.highcharts-bindings-wrapper li.highcharts-active,
+.highcharts-bindings-wrapper li:hover,
+.highcharts-bindings-wrapper li > button.highcharts-menu-item-btn:hover {
+  background-color: #333 !important;
+}
+
+/* Toolbar toggle button */
+.highcharts-toggle-toolbar {
+  background-color: #000 !important;
+}
+
+/* Separator */
+.highcharts-bindings-wrapper li.highcharts-separator {
+  background-color: transparent !important;
+}
+
+/* Arrow wrapper */
+.highcharts-bindings-wrapper .highcharts-arrow-wrapper {
+  background-color: #000 !important;
+}
+
+.highcharts-bindings-wrapper .highcharts-arrow-wrapper > div {
+  color: #fff !important;
+}
+
+/* Popup dialog */
+.highcharts-popup {
+  background-color: #1a1a1a !important;
+  color: #ccc !important;
+  border: 1px solid #333 !important;
+}
+
+.highcharts-popup-close {
+  color: #ccc !important;
+}
+
+.highcharts-popup input,
+.highcharts-popup select,
+.highcharts-popup button,
+.highcharts-popup textarea {
+  background-color: #333 !important;
+  color: #ccc !important;
+  border: 1px solid #555 !important;
+}
+
+.highcharts-popup button:hover {
+  background-color: #444 !important;
+}
+
+.highcharts-popup .highcharts-tab-item {
+  background-color: #1a1a1a !important;
+  color: #ccc !important;
+}
+
+.highcharts-popup .highcharts-tab-item.highcharts-tab-item-active {
+  background-color: #333 !important;
+  color: #fff !important;
+}
+
+.highcharts-popup .highcharts-popup-rhs-col {
+  background-color: #1a1a1a !important;
+  color: #ccc !important;
+}
+
+.highcharts-popup .highcharts-popup-lhs-col {
+  background-color: #1a1a1a !important;
+  color: #ccc !important;
+}
+
+.highcharts-popup .highcharts-popup-bottom-row {
+  border-top: 1px solid #333 !important;
+}
+
+/* Indicator list */
+.highcharts-popup .highcharts-indicator-list {
+  background-color: #1a1a1a !important;
+}
+
+.highcharts-popup .highcharts-indicator-list .highcharts-indicator-list-item {
+  background-color: #1a1a1a !important;
+  color: #ccc !important;
+}
+
+.highcharts-popup .highcharts-indicator-list .highcharts-indicator-list-item:hover {
+  background-color: #333 !important;
+  color: #fff !important;
+}
+
+/* Annotation popup */
+.highcharts-annotation-popup {
+  background-color: #1a1a1a !important;
+  color: #ccc !important;
+  border: 1px solid #333 !important;
+}
+
+.highcharts-annotation-popup input,
+.highcharts-annotation-popup select,
+.highcharts-annotation-popup button {
+  background-color: #333 !important;
+  color: #ccc !important;
+  border: 1px solid #555 !important;
+}
+
+/* Legend */
+.highcharts-legend-item text {
+  fill: #ccc !important;
+}
+
+.highcharts-legend-item:hover text {
+  fill: #fff !important;
+}
+
+/* Fix for indicator dialog labels */
+.highcharts-popup label,
+.highcharts-popup .highcharts-popup-main,
+.highcharts-popup .highcharts-popup-title,
+.highcharts-popup .highcharts-popup-content,
+.highcharts-popup .highcharts-popup-content span,
+.highcharts-popup .highcharts-popup-content div {
+  color: #ccc !important;
+}
+
+/* Fix for tabs */
+.highcharts-tab-item-content {
+  background-color: #1a1a1a !important;
+}
+
+/* Fix for dropdown menus */
+.highcharts-popup-dropdown {
+  background-color: #333 !important;
+  color: #ccc !important;
+}
+
+.highcharts-popup-dropdown-item {
+  color: #ccc !important;
+}
+
+.highcharts-popup-dropdown-item:hover {
+  background-color: #444 !important;
+  color: #fff !important;
+}
+
+/* Fix for indicator edit/remove dialog */
+.highcharts-indicator-edit,
+.highcharts-indicator-remove {
+  background-color: #333 !important;
+  color: #ccc !important;
+}
+
+.highcharts-popup-series-name {
+  color: #ccc !important;
+}

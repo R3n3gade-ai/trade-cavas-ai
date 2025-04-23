@@ -168,6 +168,7 @@
     "grapesjs": "0.22.5",
     "grapesjs-react": "4.0.2",
     "highcharts": "^12.2.0",
+    "highcharts-custom-events": "^3.0.10",
     "highcharts-react-official": "^3.2.1",
     "html2canvas": "1.4.1",
     "html2pdf.js": "0.10.3",

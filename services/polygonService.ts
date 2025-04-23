@@ -13,20 +13,35 @@ export class PolygonService {
     from: string,
     to: string
   ) {
-    const url = `${this.baseUrl}/aggs/ticker/${ticker}/range/${multiplier}/${timespan}/${from}/${to}?apiKey=${this.apiKey}`;
-    
+    // Add limit parameter for minute data to ensure we get enough data points
+    let limit = '';
+    if (timespan === 'minute') {
+      // For minute data, we need to ensure we get enough data points
+      // Polygon API default limit is 5000, which should be enough for most cases
+      limit = '&limit=5000';
+    }
+
+    const url = `${this.baseUrl}/aggs/ticker/${ticker}/range/${multiplier}/${timespan}/${from}/${to}?adjusted=true${limit}&apiKey=${this.apiKey}`;
+
+    console.log('Polygon API URL:', url);
+
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`Failed to fetch stock data: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('Polygon API error:', errorText);
+      throw new Error(`Failed to fetch stock data: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
+    console.log('Polygon API response status:', data.status);
+    console.log('Polygon API response count:', data.resultsCount);
+
     return data;
   }
 
   async searchTickers(query: string) {
     const url = `https://api.polygon.io/v3/reference/tickers?search=${query}&active=true&sort=ticker&order=asc&limit=10&apiKey=${this.apiKey}`;
-    
+
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to search tickers: ${response.statusText}`);
@@ -35,4 +50,4 @@ export class PolygonService {
     const data = await response.json();
     return data.results;
   }
-} 
+}

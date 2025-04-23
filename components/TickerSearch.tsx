@@ -71,23 +71,23 @@ const TickerSearch: React.FC<TickerSearchProps> = ({
     }
   }, [value, options]);
 
-  const handleSymbolChange = (event: React.SyntheticEvent, value: TickerOption | string | null) => {
-    event.preventDefault();
+  const handleSymbolChange = (_event: React.SyntheticEvent | null, value: TickerOption | string | null) => {
+    // Don't call preventDefault as event might be null in some cases
     if (value) {
       const symbol = typeof value === 'string' ? value : value.symbol;
       onChange(symbol.toUpperCase());
     }
   };
 
-  const handleInputChange = (event: React.SyntheticEvent, newInputValue: string) => {
-    event.preventDefault();
+  const handleInputChange = (_event: React.SyntheticEvent | null, newInputValue: string) => {
+    // Don't call preventDefault as event might be null in some cases
     setSearchSymbol(newInputValue);
   };
 
   return (
-    <Box 
-      className={className} 
-      style={style} 
+    <Box
+      className={className}
+      style={style}
       sx={sx}
       component="form"
       onSubmit={(e) => e.preventDefault()}
@@ -99,7 +99,7 @@ const TickerSearch: React.FC<TickerSearchProps> = ({
         onInputChange={handleInputChange}
         options={options}
         getOptionLabel={(option) => typeof option === 'string' ? option : `${option.symbol} - ${option.name}`}
-        isOptionEqualToValue={(option, value) => 
+        isOptionEqualToValue={(option, value) =>
           typeof option === 'string' ? option === value : option.symbol === value.symbol
         }
         freeSolo
@@ -132,4 +132,4 @@ const TickerSearch: React.FC<TickerSearchProps> = ({
   );
 };
 
-export default TickerSearch; 
+export default TickerSearch;
